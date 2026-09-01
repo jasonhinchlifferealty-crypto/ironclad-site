@@ -1,0 +1,117 @@
+{
+ "_readme": "One record per neighbourhood. 'sample': true shows a Sample Data label on the site. When you publish real figures (from Repliers or your board stats), set sample to false and update 'period' and 'updated'. Fields: median = median sale price (CAD); dom = median days on market; sales = closed sales in the period; active = active listings at period end; yoy = year-over-year median price change as a decimal (0.061 = +6.1%); listToSale = average sale price divided by list price; activity = one of low, moderate, steady, active, hot.",
+ "sample": true,
+ "period": "July 2026",
+ "updated": "2026-08-01",
+ "source": "Sample figures for layout only",
+ "region": {
+  "name": "Kennebecasis Valley & Greater Saint John",
+  "median": 372000,
+  "dom": 22,
+  "sales": 214,
+  "active": 401,
+  "yoy": 0.048,
+  "listToSale": 0.991
+ },
+ "areas": {
+  "hampton": {
+   "median": 398000,
+   "dom": 24,
+   "sales": 17,
+   "active": 31,
+   "yoy": 0.052,
+   "listToSale": 0.987,
+   "activity": "steady"
+  },
+  "quispamsis": {
+   "median": 462000,
+   "dom": 16,
+   "sales": 38,
+   "active": 52,
+   "yoy": 0.061,
+   "listToSale": 1.004,
+   "activity": "hot"
+  },
+  "gondola-point": {
+   "median": 489000,
+   "dom": 19,
+   "sales": 9,
+   "active": 14,
+   "yoy": 0.044,
+   "listToSale": 0.996,
+   "activity": "active"
+  },
+  "rothesay": {
+   "median": 528000,
+   "dom": 21,
+   "sales": 22,
+   "active": 44,
+   "yoy": 0.038,
+   "listToSale": 0.982,
+   "activity": "active"
+  },
+  "grand-bay-westfield": {
+   "median": 384000,
+   "dom": 27,
+   "sales": 14,
+   "active": 29,
+   "yoy": 0.041,
+   "listToSale": 0.985,
+   "activity": "steady"
+  },
+  "millidgeville": {
+   "median": 412000,
+   "dom": 18,
+   "sales": 19,
+   "active": 27,
+   "yoy": 0.057,
+   "listToSale": 0.998,
+   "activity": "active"
+  },
+  "north-end": {
+   "median": 236000,
+   "dom": 29,
+   "sales": 21,
+   "active": 46,
+   "yoy": 0.033,
+   "listToSale": 0.974,
+   "activity": "moderate"
+  },
+  "uptown": {
+   "median": 309000,
+   "dom": 25,
+   "sales": 18,
+   "active": 39,
+   "yoy": 0.046,
+   "listToSale": 0.981,
+   "activity": "steady"
+  },
+  "east-side": {
+   "median": 318000,
+   "dom": 20,
+   "sales": 36,
+   "active": 61,
+   "yoy": 0.055,
+   "listToSale": 0.993,
+   "activity": "active"
+  },
+  "west-side": {
+   "median": 262000,
+   "dom": 31,
+   "sales": 20,
+   "active": 58,
+   "yoy": 0.029,
+   "listToSale": 0.972,
+   "activity": "moderate"
+  },
+  "sussex": {
+   "median": 328000,
+   "dom": 26,
+   "sales": 12,
+   "active": 24,
+   "yoy": 0.036,
+   "listToSale": 0.981,
+   "activity": "steady"
+  }
+ }
+}

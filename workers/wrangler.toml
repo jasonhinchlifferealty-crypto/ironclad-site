@@ -1,0 +1,9 @@
+# Optional: for deploying the briefing agent by command line instead of the dashboard.
+# The launch guide uses the dashboard (no tools needed) — this file is here for later.
+name = "ironclad-briefing"
+main = "briefing.js"
+compatibility_date = "2026-08-01"
+
+[triggers]
+# 10:00 UTC = 7:00 a.m. Atlantic (summer). Weekdays only.
+crons = ["0 10 * * 1-5"]

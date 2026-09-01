@@ -1,0 +1,547 @@
+{
+ "type": "FeatureCollection",
+ "_note": "DRAFT boundaries, approximate. Edit visually at geojson.io: File > Open this file, drag points, Save > GeoJSON, replace this file. Coordinates are [longitude, latitude].",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "sussex",
+    "name": "Sussex",
+    "group": "Sussex & Area",
+    "order": 0
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -65.585,
+       45.69
+      ],
+      [
+       -65.585,
+       45.74
+      ],
+      [
+       -65.545,
+       45.762
+      ],
+      [
+       -65.48,
+       45.758
+      ],
+      [
+       -65.44,
+       45.735
+      ],
+      [
+       -65.448,
+       45.7
+      ],
+      [
+       -65.5,
+       45.678
+      ],
+      [
+       -65.56,
+       45.678
+      ],
+      [
+       -65.585,
+       45.69
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "hampton",
+    "name": "Hampton",
+    "group": "Kennebecasis Valley",
+    "order": 1
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -65.905,
+       45.505
+      ],
+      [
+       -65.905,
+       45.545
+      ],
+      [
+       -65.88,
+       45.562
+      ],
+      [
+       -65.835,
+       45.566
+      ],
+      [
+       -65.795,
+       45.552
+      ],
+      [
+       -65.785,
+       45.522
+      ],
+      [
+       -65.805,
+       45.5
+      ],
+      [
+       -65.86,
+       45.494
+      ],
+      [
+       -65.905,
+       45.505
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "quispamsis",
+    "name": "Quispamsis",
+    "group": "Kennebecasis Valley",
+    "order": 2
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -65.985,
+       45.405
+      ],
+      [
+       -65.96,
+       45.4
+      ],
+      [
+       -65.91,
+       45.412
+      ],
+      [
+       -65.88,
+       45.44
+      ],
+      [
+       -65.905,
+       45.47
+      ],
+      [
+       -65.94,
+       45.482
+      ],
+      [
+       -65.955,
+       45.47
+      ],
+      [
+       -65.965,
+       45.445
+      ],
+      [
+       -65.985,
+       45.43
+      ],
+      [
+       -65.985,
+       45.405
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "gondola-point",
+    "name": "Gondola Point",
+    "group": "Kennebecasis Valley",
+    "order": 3,
+    "parent": "Quispamsis"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -65.985,
+       45.43
+      ],
+      [
+       -65.965,
+       45.445
+      ],
+      [
+       -65.955,
+       45.47
+      ],
+      [
+       -65.94,
+       45.482
+      ],
+      [
+       -65.96,
+       45.492
+      ],
+      [
+       -65.995,
+       45.478
+      ],
+      [
+       -66.01,
+       45.455
+      ],
+      [
+       -65.985,
+       45.43
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "rothesay",
+    "name": "Rothesay",
+    "group": "Kennebecasis Valley",
+    "order": 4
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -66.045,
+       45.36
+      ],
+      [
+       -66.03,
+       45.395
+      ],
+      [
+       -66.0,
+       45.412
+      ],
+      [
+       -65.985,
+       45.405
+      ],
+      [
+       -65.96,
+       45.4
+      ],
+      [
+       -65.955,
+       45.372
+      ],
+      [
+       -65.985,
+       45.352
+      ],
+      [
+       -66.02,
+       45.348
+      ],
+      [
+       -66.045,
+       45.36
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "grand-bay-westfield",
+    "name": "Grand Bay-Westfield",
+    "group": "Kennebecasis Valley",
+    "order": 5
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -66.23,
+       45.315
+      ],
+      [
+       -66.23,
+       45.395
+      ],
+      [
+       -66.195,
+       45.42
+      ],
+      [
+       -66.14,
+       45.418
+      ],
+      [
+       -66.105,
+       45.395
+      ],
+      [
+       -66.11,
+       45.335
+      ],
+      [
+       -66.15,
+       45.305
+      ],
+      [
+       -66.23,
+       45.315
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "millidgeville",
+    "name": "Millidgeville",
+    "group": "Saint John",
+    "order": 6
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -66.105,
+       45.3
+      ],
+      [
+       -66.1,
+       45.325
+      ],
+      [
+       -66.075,
+       45.338
+      ],
+      [
+       -66.05,
+       45.322
+      ],
+      [
+       -66.048,
+       45.3
+      ],
+      [
+       -66.07,
+       45.298
+      ],
+      [
+       -66.105,
+       45.3
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "north-end",
+    "name": "North End",
+    "group": "Saint John",
+    "order": 7
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -66.1,
+       45.278
+      ],
+      [
+       -66.105,
+       45.3
+      ],
+      [
+       -66.07,
+       45.298
+      ],
+      [
+       -66.048,
+       45.3
+      ],
+      [
+       -66.045,
+       45.283
+      ],
+      [
+       -66.06,
+       45.278
+      ],
+      [
+       -66.1,
+       45.278
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "uptown",
+    "name": "Uptown & South End",
+    "group": "Saint John",
+    "order": 8
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -66.078,
+       45.258
+      ],
+      [
+       -66.078,
+       45.278
+      ],
+      [
+       -66.06,
+       45.278
+      ],
+      [
+       -66.045,
+       45.283
+      ],
+      [
+       -66.043,
+       45.262
+      ],
+      [
+       -66.06,
+       45.256
+      ],
+      [
+       -66.078,
+       45.258
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "east-side",
+    "name": "East Side",
+    "group": "Saint John",
+    "order": 9
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -66.043,
+       45.262
+      ],
+      [
+       -66.045,
+       45.283
+      ],
+      [
+       -66.048,
+       45.3
+      ],
+      [
+       -66.05,
+       45.322
+      ],
+      [
+       -66.01,
+       45.335
+      ],
+      [
+       -65.95,
+       45.315
+      ],
+      [
+       -65.945,
+       45.27
+      ],
+      [
+       -65.99,
+       45.25
+      ],
+      [
+       -66.043,
+       45.262
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "west-side",
+    "name": "West Side",
+    "group": "Saint John",
+    "order": 10
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -66.18,
+       45.225
+      ],
+      [
+       -66.18,
+       45.285
+      ],
+      [
+       -66.13,
+       45.298
+      ],
+      [
+       -66.1,
+       45.278
+      ],
+      [
+       -66.085,
+       45.262
+      ],
+      [
+       -66.09,
+       45.24
+      ],
+      [
+       -66.13,
+       45.222
+      ],
+      [
+       -66.18,
+       45.225
+      ]
+     ]
+    ]
+   }
+  }
+ ]
+}

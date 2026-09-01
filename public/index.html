@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ironclad Realty Group — The KV Market Pulse · Kennebecasis Valley & Saint John real estate</title>
+<meta name="description" content="Neighbourhood-level home prices, days on market, and activity across Quispamsis, Rothesay, Hampton, Grand Bay-Westfield and Saint John. Pick your neighbourhood, get a street-level equity snapshot for your address. Call today. Answered today.">
+<link rel="canonical" href="https://ironcladrealty.ca/">
+<meta property="og:title" content="The KV Market Pulse — Ironclad Realty Group">
+<meta property="og:description" content="What homes are selling for, street by street, across the Kennebecasis Valley and Saint John. Updated monthly.">
+<meta property="og:image" content="https://ironcladrealty.ca/assets/img/og.png">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#201E1D">
+<link rel="icon" href="/assets/img/shield-red.png" type="image/png">
+<link rel="apple-touch-icon" href="/assets/img/shield-red.png">
+<link rel="preload" href="/assets/fonts/archivo-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/archivo-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/vendor/leaflet.css">
+<link rel="stylesheet" href="/assets/css/site.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "RealEstateAgent",
+  "name": "Ironclad Realty Group",
+  "url": "https://ironcladrealty.ca/",
+  "telephone": "+1-506-608-3333",
+  "email": "jason@ironcladrealty.ca",
+  "image": "https://ironcladrealty.ca/assets/img/shield-red.png",
+  "parentOrganization": { "@type": "Organization", "name": "eXp Realty Canada — New Brunswick" },
+  "areaServed": ["Quispamsis", "Rothesay", "Hampton", "Grand Bay-Westfield", "Saint John", "Sussex", "New Brunswick"],
+  "employee": { "@type": "Person", "name": "Jason Hinchliffe", "jobTitle": "REALTOR®" },
+  "slogan": "Call today. Answered today."
+}
+</script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Ironclad Realty Group — home">
+      <img src="/assets/img/lockup-charcoal.png" alt="Ironclad Realty Group" width="1836" height="450">
+    </a>
+    <nav class="nav" id="nav" aria-label="Primary">
+      <a href="#pulse">The Pulse</a>
+      <a href="#sell">Sell</a>
+      <a href="#buy">Buy</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="header-cta">
+      <a class="btn btn-secondary" href="#" data-book>Book a call</a>
+      <a class="btn btn-primary" href="tel:+15066083333" data-phone-href><span data-phone>506-608-3333</span></a>
+      <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="nav" aria-label="Menu"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<div class="notice" id="sampleNotice"><strong>Sample figures.</strong> The map is showing layout data. Real neighbourhood numbers arrive with the first monthly update.</div>
+
+<!-- ============ THE PULSE ============ -->
+<section class="pulse" id="pulse" aria-labelledby="pulse-title">
+  <div class="pulse-grid">
+    <div class="pulse-intro">
+      <div class="pulse-meta">
+        <span class="label red">The KV Market Pulse</span>
+        <span class="label muted"><span id="pulsePeriod">—</span></span>
+      </div>
+      <h1 class="display" id="pulse-title">Know your street before you list.</h1>
+      <p class="lead">Median prices, days on market, and activity for every neighbourhood, Sussex to Saint John. Pick yours on the map or below.</p>
+    </div>
+
+    <div class="pulse-map">
+      <div id="map" role="region" aria-label="Neighbourhood market map"></div>
+      <div class="map-hint" id="mapHint">Tap a neighbourhood</div>
+    </div>
+
+    <div class="pulse-side">
+      <div class="area-list-wrap" id="areaListWrap">
+        <ul class="area-list" id="areaList" aria-label="Neighbourhoods"></ul>
+        <p class="elsewhere">Somewhere else in New Brunswick? <button type="button" class="linklike" data-snapshot>The snapshot works province-wide.</button></p>
+        <div class="legend" style="margin-top:18px">
+          <span>Activity</span>
+          <div class="bar"><i></i><i></i><i></i><i></i><i></i></div>
+          <span></span>
+          <div class="ends"><span>Quieter</span><span>Busier</span></div>
+        </div>
+      </div>
+
+      <div class="area-detail" id="areaDetail" aria-live="polite">
+        <button class="back" id="backToList" type="button"><img class="ic" src="/assets/icons/ink/arrow.svg" alt="">All neighbourhoods</button>
+        <div>
+          <span class="label red" id="detailGroup">—</span>
+          <h2 class="display" id="detailName" style="margin-top:6px">—</h2>
+        </div>
+        <div class="stat-grid">
+          <div class="stat"><div class="num" id="dMedian">—</div><div class="k">Median sale price</div></div>
+          <div class="stat"><div class="num" id="dDom">—</div><div class="k">Median days on market</div></div>
+          <div class="stat"><div class="num" id="dSales">—</div><div class="k">Sales, <span id="dPeriod">this period</span></div></div>
+          <div class="stat"><div class="num" id="dActive">—</div><div class="k">Homes for sale now</div></div>
+          <div class="stat"><div class="num" id="dYoy">—</div><div class="k">Median price, year over year</div></div>
+          <div class="stat"><div class="num" id="dLts">—</div><div class="k">Sale price vs. list price</div></div>
+        </div>
+        <div class="activity"><span class="label muted" id="dActivity">—</span><div class="meter" id="dMeter"><i></i><i></i><i></i><i></i><i></i></div></div>
+        <p class="read" id="dRead"></p>
+        <div class="snapshot-cta">
+          <span class="label" style="color:rgba(255,255,255,.66)">For homeowners here</span>
+          <h3 class="h3">Your street, not the neighbourhood average.</h3>
+          <p>Tell us your address and we'll send a Street-Level Equity Snapshot: comparable sales near you, an evidence-based value range, and what's competing with you right now.</p>
+          <button class="btn btn-primary btn-block" type="button" data-snapshot>Get my street-level snapshot</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="strip" aria-label="Region at a glance">
+  <div class="wrap">
+    <div class="cell"><div class="num" id="rMedian">—</div><div class="k">Region median price</div></div>
+    <div class="cell"><div class="num" id="rDom">—</div><div class="k">Region days on market</div></div>
+    <div class="cell"><div class="num" id="rSales">—</div><div class="k">Homes sold, <span id="rPeriod">this period</span></div></div>
+    <div class="cell"><div class="num" id="rLts">—</div><div class="k">Sale vs. list, region</div></div>
+  </div>
+</div>
+
+<!-- ============ HOW THE SNAPSHOT WORKS ============ -->
+<section class="section" id="snapshot" aria-labelledby="snap-title">
+  <div class="wrap grid-2">
+    <div class="stack" style="--stack:20px">
+      <span class="label red">Street-Level Equity Snapshot</span>
+      <h2 class="h2" id="snap-title">The map shows the neighbourhood. The snapshot shows your street.</h2>
+      <p class="lead">Neighbourhood medians are a starting point. What your home is worth depends on the sales within a few streets, in the last few months, at your size and condition. That's what the snapshot pulls.</p>
+      <p><button class="btn btn-primary btn-lg" type="button" data-snapshot>Get my street-level snapshot</button></p>
+    </div>
+    <div>
+      <div class="step"><div class="n">1</div><div><h3 class="h3">Pick your neighbourhood</h3><p>On the map or the list. That's your baseline: what's selling, how fast, and for how much.</p></div></div>
+      <div class="step"><div class="n">2</div><div><h3 class="h3">Give us your address and timeline</h3><p>Four fields. Your timeline tells us whether you want a number now or a plan for later. Both are fine.</p></div></div>
+      <div class="step"><div class="n">3</div><div><h3 class="h3">Snapshot lands in your inbox</h3><p>Comparable sales, a value range built from them, and today's competition. Then a call from us to walk through it, if you want one.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SELL ============ -->
+<section class="section on-white" id="sell" aria-labelledby="sell-title">
+  <div class="wrap">
+    <div class="eyebrow-row">
+      <div>
+        <span class="label red">Selling with us</span>
+        <h2 class="h2" id="sell-title" style="margin-top:8px">Every listing, priced by evidence.</h2>
+      </div>
+      <a class="btn btn-secondary" href="#" data-book>Book a call</a>
+    </div>
+    <div class="grid-3">
+      <div class="feature">
+        <img class="ic" src="/assets/icons/ink/chart.svg" alt="">
+        <h3 class="h3">Analytics first</h3>
+        <p>We price from comparable sales, absorption rates, and days-on-market data for your street, not a gut feel for the town. You see the comps we used.</p>
+      </div>
+      <div class="feature">
+        <img class="ic" src="/assets/icons/ink/contract.svg" alt="">
+        <h3 class="h3">Negotiation you can watch</h3>
+        <p>Every offer comes with our read on it and a recommendation, in writing. We negotiate like it's our own money on the table, because we treat it that way.</p>
+      </div>
+      <div class="feature">
+        <img class="ic" src="/assets/icons/ink/clock.svg" alt="">
+        <h3 class="h3">Same-day service, guaranteed</h3>
+        <p>Call before noon — hear back today, or we deduct $250 from our closing commission. That's the guarantee, in writing, every day we're your agent.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BUY ============ -->
+<section class="section" id="buy" aria-labelledby="buy-title">
+  <div class="wrap grid-2">
+    <div class="stack" style="--stack:20px">
+      <span class="label red">Buying</span>
+      <h2 class="h2" id="buy-title">Buying in the Valley or the city? Same evidence, other side of the table.</h2>
+      <p class="lead">Tell us the neighbourhoods and the budget. We send matches as they list, with the pulse numbers beside each one so you know what a fair offer looks like before you walk in.</p>
+      <p><button class="btn btn-secondary btn-lg" type="button" data-buyer>Send me matches</button></p>
+    </div>
+    <div class="grid-2" style="--stack:0">
+      <div class="feature"><img class="ic" src="/assets/icons/ink/key.svg" alt=""><h3 class="h3">Offers with a number behind them</h3><p>You'll see the comps before you bid. No guessing at what the seller will take.</p></div>
+      <div class="feature"><img class="ic" src="/assets/icons/ink/door.svg" alt=""><h3 class="h3">Showings on your schedule</h3><p>Evenings and weekends included. Ask by noon, we book it today.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section class="section on-white" id="about" aria-labelledby="about-title">
+  <div class="wrap grid-2">
+    <div>
+      <div class="photo"><img src="/assets/img/photos/headshot.jpg" alt="Jason Hinchliffe, REALTOR®, Ironclad Realty Group" width="1200" height="1500" loading="lazy"></div>
+    </div>
+    <div class="stack" style="--stack:20px">
+      <span class="label red">Who you'll be dealing with</span>
+      <h2 class="h2" id="about-title">We answer the phone.</h2>
+      <div class="stack" style="--stack:14px">
+        <p class="lead">Before real estate, I spent fifteen years building a commercial insurance brokerage — the kind that ran on analytics while the industry ran on golf. We once inventoried every pound of plastic in a manufacturer's warehouse to calculate their maximum possible burn. The sprinkler system everyone had called inadequate turned out to be more than enough, and their premiums came down. That is what evidence does: it replaces opinions with numbers, and numbers are negotiable in your favour.</p>
+        <p>I sold that company for the same reason I'd started it — on the strength of the data. Then came the easiest decision on this page. I'd been coming to this corner of New Brunswick since I was a kid, so when it was time for a fresh start I brought my family to see it. They fell in love with the area, and that was that.</p>
+        <p>The way I worked then is the way I work now. My line in insurance was, "You're not always going to like what I say, but you can damn well trust it." Pricing a home is a risk calculation. I run it on comparable sales, absorption, and days-on-market data, and I'll show you the printout — whether or not it says what you were hoping.</p>
+        <p>The rest of the file: philosophy at the University of Toronto, published essays, trained musician, trained martial artist, about a thousand hours of volunteer work, and one hot-wing eating title that made the server question whether I was human.</p>
+      </div>
+      <div class="stack" style="--stack:16px">
+        <blockquote class="quote"><p>"We were incredibly fortunate to work with Jason while buying our first home from Ontario, all done sight unseen. &hellip; He was always available to answer our questions, no matter how small. &hellip; Thanks to Jason's exceptional negotiation skills, we secured our dream home at a fantastic price, even in this competitive market."</p><cite>Venessa B. &mdash; bought from Ontario, sight unseen</cite></blockquote>
+        <blockquote class="quote"><p>"We couldn't have asked for a better realtor for our first home purchase. As first-time buyers, we had plenty of questions, and Jason was incredibly patient, knowledgeable, and supportive throughout the process."</p><cite>Kassandra M. &mdash; first-time buyer</cite></blockquote>
+      </div>
+      <p style="font-size:.9375rem"><strong>Jason Hinchliffe</strong> — REALTOR®<br>Ironclad Realty Group · Brokered by eXp Realty Canada — New Brunswick</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REGION PHOTOS (hidden until files exist) ============ -->
+<section class="section-tight photo-band" id="regionPhotos" hidden aria-label="The area">
+  <div class="wrap">
+    <span class="label red">Sussex to Saint John</span>
+    <div class="band-grid">
+      <img data-region-photo src="/assets/img/photos/region-1.jpg" alt="Greater Saint John, New Brunswick" loading="lazy">
+      <img data-region-photo src="/assets/img/photos/region-2.jpg" alt="Kennebecasis Valley, New Brunswick" loading="lazy">
+      <img data-region-photo src="/assets/img/photos/region-3.jpg" alt="Sussex, New Brunswick" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<!-- ============ KV PULSE SIGNUP ============ -->
+<section class="section-tight on-red" aria-labelledby="pulse-signup-title">
+  <div class="wrap signup">
+    <div class="stack" style="--stack:12px">
+      <span class="label" style="color:rgba(255,255,255,.75)">Monthly email</span>
+      <h2 class="h2" id="pulse-signup-title">The KV Pulse, in your inbox on the first of the month.</h2>
+      <p style="max-width:34em">One email. Every neighbourhood's numbers, what moved, and what it means if you're thinking of selling this year. No listings spam.</p>
+    </div>
+    <form id="pulseForm" novalidate>
+      <div class="field">
+        <label for="pulseEmail" style="color:#fff">Email</label>
+        <input id="pulseEmail" name="email" type="email" autocomplete="email" required placeholder="you@example.com">
+      </div>
+      <button class="btn btn-on-red" type="submit">Send me the Pulse</button>
+      <div class="hp" aria-hidden="true"><label>Leave this empty<input name="website" tabindex="-1" autocomplete="off"></label></div>
+      <div class="form-msg span2" id="pulseMsg" role="status" style="grid-column:1/-1"></div>
+      <p class="consent" style="grid-column:1/-1;color:rgba(255,255,255,.75)">By subscribing you agree to receive the monthly KV Pulse from Ironclad Realty Group. Unsubscribe any time. <a href="/privacy.html" style="text-decoration:underline">Privacy</a>.</p>
+    </form>
+  </div>
+</section>
+
+<!-- ============ FOOTER / CONTACT ============ -->
+<footer class="footer" id="contact">
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <div class="lockup"><img src="/assets/img/lockup-white.png" alt="Ironclad Realty Group" width="1836" height="450"></div>
+        <div class="tagline">Call today. Answered today.</div>
+      </div>
+      <div class="contact">
+        <div class="k">Contact</div>
+        <strong>Jason Hinchliffe</strong> — REALTOR®<br>
+        Ironclad Realty Group · Brokered by eXp Realty Canada — New Brunswick<br>
+        Serving Sussex to Saint John, NB<br>
+        <a href="tel:+15066083333" data-phone-href><span data-phone>506-608-3333</span></a> · <a href="mailto:jason@ironcladrealty.ca">jason@ironcladrealty.ca</a> · <a href="https://ironcladrealty.ca">ironcladrealty.ca</a>
+      </div>
+      <div>
+        <div class="k" style="text-align:right">Brokerage & board</div>
+        <div class="partners">
+          <img class="partner-mark" src="/assets/img/mls-reversed.png" alt="MLS® Multiple Listing Service" width="500" height="252">
+          <img class="partner-mark" src="/assets/img/exp-white.png" alt="eXp Realty Agent" width="1218" height="771">
+        </div>
+      </div>
+    </div>
+    <div class="bottom">
+      <span>© <span id="year"></span> Ironclad Realty Group. Independently owned and operated. Not intended to solicit properties currently listed for sale.</span>
+      <span><a href="/privacy.html">Privacy</a> · <a href="#pulse">Back to the map</a></span>
+    </div>
+  </div>
+</footer>
+
+<div class="callbar" aria-label="Quick contact">
+  <a class="call" href="tel:+15066083333" data-phone-href><img class="ic" src="/assets/icons/white/phone.svg" alt="">Call now</a>
+  <a class="text" href="sms:+15066083333" data-sms-href><img class="ic" src="/assets/icons/white/text-bubble.svg" alt="">Text us</a>
+</div>
+
+<!-- ============ LEAD MODAL ============ -->
+<div class="modal" id="leadModal" role="dialog" aria-modal="true" aria-labelledby="leadTitle" hidden>
+  <div class="modal-bg" data-close></div>
+  <div class="modal-card">
+    <button class="modal-close" type="button" data-close aria-label="Close">×</button>
+    <div>
+      <span class="label red" id="leadEyebrow">Street-Level Equity Snapshot</span>
+      <h2 class="h2" id="leadTitle" style="margin-top:8px">Where's the house?</h2>
+      <p id="leadIntro" style="margin-top:10px;color:var(--muted)">Four fields, any New Brunswick address. The snapshot goes to your email; the timeline tells us how to follow up.</p>
+    </div>
+    <form id="leadForm" novalidate>
+      <input type="hidden" name="type" value="seller">
+      <input type="hidden" name="area" id="leadArea" value="">
+      <input type="hidden" name="areaName" id="leadAreaName" value="">
+      <div class="form-grid">
+        <div class="field span2" id="addressField">
+          <label for="lAddress">Property address</label>
+          <input id="lAddress" name="address" autocomplete="street-address" required placeholder="123 Gondola Point Rd, Quispamsis">
+        </div>
+        <div class="field span2" id="areasField" hidden>
+          <label for="lAreas">Neighbourhoods you're looking in</label>
+          <input id="lAreas" name="lookingIn" placeholder="Rothesay, Quispamsis, Millidgeville">
+        </div>
+        <div class="field span2" id="budgetField" hidden>
+          <label for="lBudget">Budget</label>
+          <select id="lBudget" name="budget">
+            <option value="">Choose a range</option>
+            <option>Under $300,000</option><option>$300,000 – $450,000</option><option>$450,000 – $650,000</option><option>$650,000 – $900,000</option><option>Over $900,000</option>
+          </select>
+        </div>
+        <div class="field"><label for="lName">Name</label><input id="lName" name="name" autocomplete="name" required></div>
+        <div class="field"><label for="lPhone">Phone</label><input id="lPhone" name="phone" type="tel" autocomplete="tel" required inputmode="tel"></div>
+        <div class="field span2"><label for="lEmail">Email</label><input id="lEmail" name="email" type="email" autocomplete="email" required></div>
+        <div class="field span2">
+          <span class="label" id="timelineLabel">When are you thinking of <span id="timelineVerb">selling</span>?</span>
+          <div class="choices" role="radiogroup" aria-labelledby="timelineLabel">
+            <label><input type="radio" name="timeline" value="0-3 months" required><span>Next 3 months</span><i class="fill"></i></label>
+            <label><input type="radio" name="timeline" value="3-6 months"><span>3 to 6 months</span><i class="fill"></i></label>
+            <label><input type="radio" name="timeline" value="6-12 months"><span>6 to 12 months</span><i class="fill"></i></label>
+            <label><input type="radio" name="timeline" value="just curious"><span>Just curious</span><i class="fill"></i></label>
+          </div>
+        </div>
+        <label class="consent span2"><input type="checkbox" name="consent" required><span>You may contact me by phone, text, or email about my property and send me the snapshot. I can opt out any time. See <a href="/privacy.html" style="text-decoration:underline">privacy</a>.</span></label>
+        <div class="hp" aria-hidden="true"><label>Leave this empty<input name="website" tabindex="-1" autocomplete="off"></label></div>
+        <div class="span2"><button class="btn btn-primary btn-lg btn-block" type="submit" id="leadSubmit">Send my snapshot</button></div>
+        <div class="form-msg span2" id="leadMsg" role="status"></div>
+      </div>
+    </form>
+    <p style="font-size:.75rem;color:var(--muted)">Snapshots are evidence-based estimates from recent comparable sales, not appraisals. Not intended to solicit properties currently listed for sale.</p>
+  </div>
+</div>
+
+<script src="/assets/vendor/leaflet.js"></script>
+<script src="/assets/js/config.js"></script>
+<script src="/assets/js/pulse.js"></script>
+</body>
+</html>
