@@ -10,11 +10,12 @@ window.IRONCLAD = {
   // Leave empty and the Book a Call buttons will open the callback form instead.
   bookingUrl: "",
 
-  // Map tiles. Default is CARTO Positron (free, no key). If you ever get a MapTiler key,
-  // swap in: "https://api.maptiler.com/maps/dataviz-light/{z}/{x}/{y}.png?key=YOUR_KEY"
-  tileUrl: "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",
-  tileLabelsUrl: "https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png",
-  tileAttribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  // Map tiles: OpenStreetMap (free, no key; the site greys them via CSS to match the brand).
+  // Optional upgrade if traffic ever grows: get a free MapTiler key and swap in
+  // "https://api.maptiler.com/maps/dataviz-light/{z}/{x}/{y}.png?key=YOUR_KEY" (then remove the CSS grey filter).
+  tileUrl: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+  tileLabelsUrl: "",
+  tileAttribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 
   // Where the map opens (Kennebecasis Valley + Saint John) and how far it can wander.
   mapCenter: [45.36, -66.02],

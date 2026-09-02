@@ -90,8 +90,8 @@
     if (!window.L) return;
     map = L.map("map", { zoomControl: true, scrollWheelZoom: false, zoomSnap: 0.2, attributionControl: true, minZoom: 6.5 });
     map.attributionControl.setPrefix("Leaflet");
-    L.tileLayer(C.tileUrl, { attribution: C.tileAttribution, subdomains: "abcd", maxZoom: 18 }).addTo(map);
-    if (C.tileLabelsUrl) L.tileLayer(C.tileLabelsUrl, { subdomains: "abcd", maxZoom: 18, pane: "shadowPane" }).addTo(map);
+    L.tileLayer(C.tileUrl, { attribution: C.tileAttribution, maxZoom: 19 }).addTo(map);
+    if (C.tileLabelsUrl) L.tileLayer(C.tileLabelsUrl, { maxZoom: 19, pane: "shadowPane" }).addTo(map);
     map.zoomControl.setPosition("topright");
 
     var geo = L.geoJSON(areas, {

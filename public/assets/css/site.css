@@ -130,6 +130,7 @@ p:last-child { margin-bottom: 0; }
 .pulse-map { min-height: 420px; background: #e9e8e7; }
 #map { position: absolute; inset: 0; }
 .leaflet-container { font-family: var(--font); background: #e9e8e7; }
+.leaflet-tile-pane { filter: grayscale(1) brightness(1.04) contrast(0.9); }
 .leaflet-container a { color: var(--ink); }
 .leaflet-control-attribution { font-size: 10px; background: rgba(243,242,242,.85) !important; color: var(--muted); }
 .leaflet-bar { border-radius: 0 !important; border: 1px solid var(--ink) !important; box-shadow: none !important; }
