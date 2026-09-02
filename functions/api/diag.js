@@ -1,10 +1,8 @@
 /**
- * TEMPORARY diagnostic — /api/diag
- * Runs the exact queries the snapshot engine runs and shows the raw outcome in the browser.
- * Protected by a DIAG_KEY environment variable. DELETE THIS FILE once the feed is confirmed working.
- *
- * Usage:  https://YOUR-SITE/api/diag?key=YOUR_DIAG_KEY&address=18 Pine Glen Rd, Quispamsis
- * Never shows the API key. Shows counts, HTTP statuses, and trimmed sample listings only.
+ * TEMPORARY diagnostic v2 — /api/diag
+ * Discovers the feed's own vocabulary for sold listings instead of assuming standard labels.
+ * Protected by DIAG_KEY. DELETE THIS FILE once the feed is confirmed working.
+ * Usage: https://YOUR-SITE/api/diag?key=YOUR_DIAG_KEY&address=123+Real+St,+Quispamsis
  */
 
 const REPLIERS = "https://api.repliers.io";
@@ -15,9 +13,8 @@ export async function onRequestGet({ request, env }) {
     return new Response("Not found", { status: 404 });
   }
   const address = url.searchParams.get("address") || "18 Pine Glen Rd, Quispamsis";
-  const out = { address, hasRepliersKey: !!env.REPLIERS_API_KEY, steps: [] };
+  const out = { version: 2, address, hasRepliersKey: !!env.REPLIERS_API_KEY, steps: [] };
 
-  // Step 0 — geocode, same as the engine
   let geo = null;
   try {
     const q = encodeURIComponent(`${address}, New Brunswick, Canada`);
@@ -25,8 +22,17 @@ export async function onRequestGet({ request, env }) {
       { headers: { "User-Agent": "IroncladRealtyDiag/1.0 (jason@ironcladrealty.ca)" } });
     const j = await r.json();
     geo = j && j[0] ? { lat: parseFloat(j[0].lat), lng: parseFloat(j[0].lon), display: j[0].display_name } : null;
-    out.steps.push({ step: "geocode", ok: !!geo, result: geo });
+    out.steps.push({ step: "geocode", ok: !!geo, result: geo, note: geo ? undefined : "No match — check spelling, or use a well-known address to test" });
   } catch (e) { out.steps.push({ step: "geocode", ok: false, error: String(e) }); }
+
+  const trim = (l) => ({
+    status: l.status, lastStatus: l.lastStatus, type: l.type, class: l.class,
+    listPrice: l.listPrice, soldPrice: l.soldPrice, soldDate: l.soldDate,
+    daysOnMarket: l.daysOnMarket, listDate: l.listDate,
+    city: l.address && l.address.city,
+    propertyType: l.details && l.details.propertyType,
+    permissions: l.permissions
+  });
 
   const call = async (label, params) => {
     const entry = { step: label, params };
@@ -39,17 +45,10 @@ export async function onRequestGet({ request, env }) {
         const j = JSON.parse(text);
         entry.count = j.count != null ? j.count : (j.listings ? j.listings.length : null);
         entry.pageResults = j.listings ? j.listings.length : 0;
-        const first = j.listings && j.listings[0];
-        if (first) {
-          entry.firstListing = {
-            status: first.status, lastStatus: first.lastStatus, type: first.type, class: first.class,
-            listPrice: first.listPrice, soldPrice: first.soldPrice, soldDate: first.soldDate,
-            daysOnMarket: first.daysOnMarket, listDate: first.listDate,
-            city: first.address && first.address.city,
-            propertyType: first.details && first.details.propertyType,
-            distance: first.distance,
-            topLevelFields: Object.keys(first).slice(0, 25)
-          };
+        if (j.listings && j.listings[0]) {
+          entry.firstListing = trim(j.listings[0]);
+          entry.allLastStatusesOnPage = [...new Set(j.listings.map(l => l.lastStatus))];
+          entry.allCitiesOnPage = [...new Set(j.listings.map(l => l.address && l.address.city))];
         }
         if (!j.listings) entry.rawSnippet = text.slice(0, 400);
       } catch { entry.rawSnippet = text.slice(0, 400); }
@@ -57,17 +56,15 @@ export async function onRequestGet({ request, env }) {
     out.steps.push(entry);
   };
 
-  // Step 1 — bare sold query by city
-  await call("1-solds-by-city", { status: "U", lastStatus: "Sld", city: "Quispamsis", resultsPerPage: 5 });
-  // Step 2 — add residential class
-  await call("2-plus-class", { status: "U", lastStatus: "Sld", city: "Quispamsis", class: "residential", resultsPerPage: 5 });
-  // Step 3 — add date floor (6 months back)
-  const since = new Date(); since.setMonth(since.getMonth() - 6);
-  await call("3-plus-minSoldDate", { status: "U", lastStatus: "Sld", city: "Quispamsis", class: "residential", minSoldDate: since.toISOString().slice(0, 10), resultsPerPage: 5 });
-  // Step 4 — geography instead of city (the engine's actual shape)
-  if (geo) await call("4-radius-search", { status: "U", lastStatus: "Sld", class: "residential", lat: geo.lat, long: geo.lng, radius: 5, minSoldDate: since.toISOString().slice(0, 10), resultsPerPage: 5 });
-  // Step 5 — actives for comparison (proves key works at all)
-  await call("5-actives-by-city", { status: "A", city: "Quispamsis", resultsPerPage: 5 });
+  // Discovery battery
+  await call("A-city-control", { status: "A", city: "Quispamsis", resultsPerPage: 3 });
+  await call("A-city-class-filter", { status: "A", city: "Quispamsis", class: "residential", resultsPerPage: 3 });
+  await call("U-city", { status: "U", city: "Quispamsis", resultsPerPage: 3 });
+  await call("U-province-wide", { status: "U", resultsPerPage: 5, sortBy: "updatedOnDesc" });
+  await call("U-province-soldPrice-floor", { status: "U", minSoldPrice: 1, resultsPerPage: 5 });
+  const since6 = new Date(); since6.setMonth(since6.getMonth() - 6);
+  await call("U-province-minSoldDate", { status: "U", minSoldDate: since6.toISOString().slice(0, 10), resultsPerPage: 5 });
+  if (geo) await call("U-radius-from-geocode", { status: "U", lat: geo.lat, long: geo.lng, radius: 10, resultsPerPage: 5 });
 
   return new Response(JSON.stringify(out, null, 2), { headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
 }
