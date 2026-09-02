@@ -42,11 +42,11 @@ GitHub is where the master copy lives. Cloudflare watches it; every time you cha
 2. If asked, click **Connect GitHub** and authorize Cloudflare. Choose **Only select repositories** → pick `ironclad-site` → **Install & Authorize**.
 3. Back in Cloudflare, select `ironclad-site` and click **Begin setup**.
 4. Fill in:
-   - Project name: `ironclad-site`
-   - Production branch: `main`
-   - Framework preset: **None**
-   - Build command: **leave empty**
-   - Build output directory: `public`
+    - Project name: `ironclad-site`
+    - Production branch: `main`
+    - Framework preset: **None**
+    - Build command: **leave empty**
+    - Build output directory: `public`
 5. Click **Save and Deploy**. Wait about a minute for the green "Success".
 6. Click the link that looks like `https://ironclad-site.pages.dev`. Your site is live on a temporary address. The map should draw with the red neighbourhoods over real streets. The ink bar at the top saying "Sample figures" is expected for now.
 
@@ -89,7 +89,7 @@ If nothing appears in FUB: check the key was pasted correctly with no spaces, an
 
 ## Part 6 — Point your domains at Cloudflare
 
-**⚠ Before you touch nameservers, protect your email.** If `jason@ironcladrealty.ca` is hosted with GoDaddy, Google Workspace, or Microsoft, its mail settings (called MX records) currently live at GoDaddy. Cloudflare will try to copy them across automatically, but you must verify they came over before switching, or your email stops working.
+**⚠ A note on email before you touch nameservers.** Your day-to-day email currently lives at Gmail, not on this domain, so there are no mail records to preserve — the nameserver change can't break your email. (Part 11 sets up `jason@ironcladrealty.ca` afterwards.) If that ever changes — e.g. you later host mail at GoDaddy or Google Workspace — nameserver moves are the step where mail records must be checked.
 
 ### 6a. Add ironcladrealty.ca to Cloudflare
 1. Cloudflare dashboard → **Add a domain** (or **Websites** → **Add a domain**). Type `ironcladrealty.ca`. Choose the **Free** plan.
@@ -126,8 +126,8 @@ Snapshots and briefings are sent through Resend. Free tier covers thousands of e
 4. Back in Resend click **Verify DNS Records**. Usually verifies within a few minutes.
 5. Resend → **API Keys** → **Create API Key** → name `Ironclad`, permission **Sending access** → **Add**. Copy the key (it's only shown once).
 6. Cloudflare → **ironclad-site** → **Settings** → **Environment variables** → add:
-   - `RESEND_API_KEY` = the key (tick Encrypt)
-   - `SNAPSHOT_FROM` = `Jason Hinchliffe <jason@ironcladrealty.ca>`
+    - `RESEND_API_KEY` = the key (tick Encrypt)
+    - `SNAPSHOT_FROM` = `Jason Hinchliffe <jason@ironcladrealty.ca>`
 7. **Retry deployment** (Deployments → ⋯ → Retry).
 
 ---
@@ -137,9 +137,9 @@ Snapshots and briefings are sent through Resend. Free tier covers thousands of e
 1. Log in to your **Repliers** dashboard and copy your API key.
 2. While there, check two things and note the answers: **which NB boards/feeds your key is approved for**, and **whether sold listings are included**. (If solds aren't included, the snapshot engine will still run but will report "fewer than 3 comparable sales" and tag leads `Snapshot-Manual` — call Repliers to get sold data enabled.)
 3. Cloudflare → **ironclad-site** → **Settings** → **Environment variables** → add:
-   - `REPLIERS_API_KEY` = your key (tick Encrypt)
-   - `SNAPSHOT_ENABLED` = `true`
-   - `SHOW_COMP_DETAILS` = `false` *(leave off until your board confirms sold-price display rules for direct email; then set `true` to include street names on comps)*
+    - `REPLIERS_API_KEY` = your key (tick Encrypt)
+    - `SNAPSHOT_ENABLED` = `true`
+    - `SHOW_COMP_DETAILS` = `false` *(leave off until your board confirms sold-price display rules for direct email; then set `true` to include street names on comps)*
 4. **Retry deployment**.
 5. **Test:** submit the snapshot form with your own address and email. Within a minute or two you should receive the branded snapshot email. In FUB, your record gets a note with the range quoted and the tag `Snapshot-Sent`. If instead you get `Snapshot-Manual`, open FUB → the note explains why (address not found, too few comps, email not configured).
 
@@ -151,12 +151,12 @@ Snapshots and briefings are sent through Resend. Free tier covers thousands of e
 2. Name: `ironclad-briefing` → **Deploy**.
 3. Click **Edit code**. Delete everything in the editor. Open `workers/briefing.js` from the unzipped folder in a text editor (Notepad/TextEdit), select all, copy, paste into the Cloudflare editor. Click **Deploy** (top-right).
 4. Go back to the worker → **Settings** → **Variables and Secrets** → add (choose "Secret" for the two keys):
-   - `REPLIERS_API_KEY` = your Repliers key
-   - `RESEND_API_KEY` = your Resend key
-   - `BRIEFING_TO` = `jason@ironcladrealty.ca`
-   - `BRIEFING_FROM` = `Ironclad Briefing <jason@ironcladrealty.ca>`
-   - `BRIEFING_TEST_KEY` = any private word you'll remember, e.g. `maple-2026`
-   - `SITE_URL` = `https://ironcladrealty.ca`
+    - `REPLIERS_API_KEY` = your Repliers key
+    - `RESEND_API_KEY` = your Resend key
+    - `BRIEFING_TO` = `jason@ironcladrealty.ca`
+    - `BRIEFING_FROM` = `Ironclad Briefing <jason@ironcladrealty.ca>`
+    - `BRIEFING_TEST_KEY` = any private word you'll remember, e.g. `maple-2026`
+    - `SITE_URL` = `https://ironcladrealty.ca`
 5. **Settings** → **Triggers** → **Cron Triggers** → **Add Cron Trigger** → paste `0 10 * * 1-5` → **Add**. (That's 7:00 a.m. Atlantic daylight time, Monday–Friday.)
 6. **Test right now:** the worker has an address like `https://ironclad-briefing.YOURNAME.workers.dev`. Open it in a browser with your test key added: `https://ironclad-briefing.YOURNAME.workers.dev/?key=maple-2026`. You'll see this morning's briefing on screen. Add `&send=1` to the end to actually email it to yourself.
    If the on-screen version shows "Data gaps" or empty sections, the Repliers field names for your board may differ slightly — send me a screenshot and it's a quick adjustment.
@@ -189,6 +189,42 @@ Drop `region-1.jpg`, `region-2.jpg`, `region-3.jpg` into `public/assets/img/phot
 - [ ] Briefing test URL shows a briefing; `&send=1` delivers it
 - [ ] FUB Pixel pasted in
 - [ ] Neighbourhood boundaries reviewed on the live map (see Maintenance → Boundaries)
+- [ ] Mail to `jason@ironcladrealty.ca` arrives in Gmail; replies send from the business address (Part 11)
+
+---
+
+## Part 11 — Your business email address
+
+Goal: the public sees `jason@ironcladrealty.ca`; the mail itself arrives in and is answered from your existing Gmail (`jasonhinchlifferealty@gmail.com`), which stays private. Do this after Parts 6 and 7.
+
+### 11a. Receive mail at jason@ironcladrealty.ca (Cloudflare Email Routing — free)
+1. Cloudflare → **ironcladrealty.ca** → left menu **Email** → **Email Routing** → **Get started**.
+2. Custom address: `jason` → Destination: `jasonhinchlifferealty@gmail.com` → **Create and continue**.
+3. Cloudflare emails your Gmail a verification link — click it.
+4. When Cloudflare offers to **add the required DNS records (MX and TXT)** automatically, accept. *(These sit on the root of the domain; Resend's records from Part 7 live on their own subdomain, so nothing conflicts.)*
+5. Recommended: on the Email Routing page, open **Catch-all address** → **Enable** → forward to your Gmail. Now `info@`, misspellings, anything `@ironcladrealty.ca` reaches you instead of bouncing.
+6. Test: send a note from any other account to `jason@ironcladrealty.ca`; it should land in your Gmail within a minute.
+
+### 11b. Send from Gmail as jason@ironcladrealty.ca
+Gmail needs a one-time "app password" to do this:
+1. Go to **myaccount.google.com** → **Security** → make sure **2-Step Verification** is turned on (follow the prompts if not).
+2. Still under Security, search for **App passwords** (or visit myaccount.google.com/apppasswords). App name: `Ironclad mail` → **Create**. Copy the 16-character password it shows.
+3. In Gmail (on a computer): gear icon → **See all settings** → **Accounts and Import** tab.
+4. At "Send mail as", click **Add another email address**. Name: `Jason Hinchliffe` · Email: `jason@ironcladrealty.ca` · leave **Treat as an alias** ticked → **Next Step**.
+5. SMTP Server: `smtp.gmail.com` · Port: `587` · Username: `jasonhinchlifferealty@gmail.com` (the full Gmail address) · Password: the 16-character app password → **Add Account**.
+6. Gmail sends a confirmation code **to jason@ironcladrealty.ca** — which now forwards to your Gmail (11a), so it arrives in the same inbox. Enter the code.
+7. Back in **Accounts and Import**: next to `jason@ironcladrealty.ca` click **make default**, and set "When replying to a message" to **Reply from the same address the message was sent to**.
+8. Test: compose a new email — the From line should read `jason@ironcladrealty.ca`. Send one to a friend and confirm it doesn't land in spam.
+
+### 11c. One DNS tweak for deliverability
+1. Cloudflare → **ironcladrealty.ca** → **DNS** → **Records**. Find the **TXT** record on the root name (`ironcladrealty.ca`) whose value starts `v=spf1 include:_spf.mx.cloudflare.net`.
+2. Click **Edit** and change the value to:
+   `v=spf1 include:_spf.mx.cloudflare.net include:_spf.google.com ~all`
+3. **Save.** This tells the world's mail servers that both Cloudflare (receiving) and Google (your sending) are legitimate for your domain.
+
+### Notes
+- The site's automated emails (snapshots, briefings) go out through Resend from the same address — that's Part 7 and needs nothing here. Replies to them arrive in your Gmail like everything else.
+- This free setup serves fine. If you ever find your personal replies going to recipients' spam, the clean upgrade is **Google Workspace** (~$8/month): a real mailbox on the same address, nothing public-facing changes. There's no need to decide now.
 
 ---
 

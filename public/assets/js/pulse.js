@@ -189,7 +189,8 @@
     $("#addressField").hidden = !seller; $("#lAddress").required = seller;
     $("#areasField").hidden = seller; $("#budgetField").hidden = seller;
     $("#timelineVerb").textContent = seller ? "selling" : "buying";
-    $("#leadSubmit").textContent = seller ? "Send my snapshot" : "Send me matches";
+    var sBtn = $("#leadSubmit"); sBtn.disabled = false;
+    sBtn.textContent = seller ? "Send my snapshot" : "Send me matches";
     if (seller && !leadForm.areaName.value) { /* no neighbourhood picked yet — fine, address covers it */ }
     $("#leadMsg").className = "form-msg span2"; $("#leadMsg").textContent = "";
     setTimeout(function () { (seller ? $("#lAddress") : $("#lAreas")).focus(); }, 50);
@@ -256,7 +257,7 @@
     if (!pulseForm.checkValidity()) { pulseForm.reportValidity(); return; }
     var msg = $("#pulseMsg"), data = serialize(pulseForm); data.type = "subscriber"; data.source = "KV-Pulse-Signup"; data.page = location.href;
     var btn = pulseForm.querySelector("button"); btn.disabled = true;
-    post("/api/lead", data).then(function () { pulseForm.reset(); showMsg(msg, "Subscribed. First Pulse arrives on the 1st.", true); })
+    post("/api/lead", data).then(function () { pulseForm.reset(); showMsg(msg, "Subscribed. First Pulse arrives on the 1st.", true); btn.disabled = false; })
       .catch(function (err) { showMsg(msg, "That didn't go through: " + err.message, false); btn.disabled = false; });
   });
 })();
