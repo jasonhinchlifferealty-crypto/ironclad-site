@@ -42,7 +42,7 @@ export async function onRequestGet(context) {
 
   // 2. Aggregate live
   try {
-    const data = await aggregate(env, new URL(request.url).origin);
+    const data = await aggregate(env, new URL(request.url).origin, context);
     if (env.LEADS) {
       try { await env.LEADS.put(CACHE_KEY, JSON.stringify(data), { expirationTtl: 86400 }); } catch {}
     }
@@ -59,12 +59,14 @@ export async function onRequestGet(context) {
   }
 }
 
-async function aggregate(env, origin) {
+async function aggregate(env, origin, context) {
   if (!env.REPLIERS_API_KEY) throw new Error("REPLIERS_API_KEY not set");
 
-  // Load neighbourhood polygons from the site's own static file
-  const geoR = await fetch(origin + "/data/areas.geojson");
-  if (!geoR.ok) throw new Error("areas.geojson unavailable");
+  // Load neighbourhood polygons from the site's own static file.
+  // Must go through the ASSETS binding: Cloudflare blocks a function fetching its own domain directly.
+  const assetUrl = origin + "/data/areas.geojson";
+  const geoR = env.ASSETS ? await env.ASSETS.fetch(assetUrl) : await fetch(assetUrl);
+  if (!geoR.ok) throw new Error("areas.geojson unavailable (" + geoR.status + ")");
   const geo = await geoR.json();
   const areas = geo.features.map(f => ({
     id: f.properties.id, name: f.properties.name, group: f.properties.group,
