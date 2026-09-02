@@ -120,15 +120,16 @@ If nothing appears in FUB: check the key was pasted correctly with no spaces, an
 
 Snapshots and briefings are sent through Resend. Free tier covers thousands of emails a month.
 
-1. Go to **resend.com** → sign up with `jason@ironcladrealty.ca`.
+1. **First, do Part 11a** (five minutes — it makes `jason@ironcladrealty.ca` able to receive mail, and only needs your domain active on Cloudflare, which it now is). Then come back here.
+3. Go to **resend.com** → sign up with `jason@ironcladrealty.ca`. The verification email arrives in your Gmail via the forwarding you just set up.
 2. Left menu **Domains** → **Add Domain** → enter `ironcladrealty.ca` → region: pick the North American option → **Add**.
-3. Resend shows **3 DNS records** to add (one MX, two TXT). For each one: open a second tab at Cloudflare → `ironcladrealty.ca` → **DNS** → **Records** → **Add record**, and copy the **Type**, **Name**, and **Content/Value** exactly as Resend shows. Where Cloudflare asks about **Proxy status**, set it to **DNS only** (grey cloud).
-4. Back in Resend click **Verify DNS Records**. Usually verifies within a few minutes.
-5. Resend → **API Keys** → **Create API Key** → name `Ironclad`, permission **Sending access** → **Add**. Copy the key (it's only shown once).
-6. Cloudflare → **ironclad-site** → **Settings** → **Environment variables** → add:
+4. Resend shows **3 DNS records** to add (one MX, two TXT). For each one: open a second tab at Cloudflare → `ironcladrealty.ca` → **DNS** → **Records** → **Add record**, and copy the **Type**, **Name**, and **Content/Value** exactly as Resend shows. Where Cloudflare asks about **Proxy status**, set it to **DNS only** (grey cloud).
+5. Back in Resend click **Verify DNS Records**. Usually verifies within a few minutes.
+6. Resend → **API Keys** → **Create API Key** → name `Ironclad`, permission **Sending access** → **Add**. Copy the key (it's only shown once).
+7. Cloudflare → **ironclad-site** → **Settings** → **Environment variables** → add:
     - `RESEND_API_KEY` = the key (tick Encrypt)
     - `SNAPSHOT_FROM` = `Jason Hinchliffe <jason@ironcladrealty.ca>`
-7. **Retry deployment** (Deployments → ⋯ → Retry).
+8. **Retry deployment** (Deployments → ⋯ → Retry).
 
 ---
 
@@ -195,7 +196,7 @@ Drop `region-1.jpg`, `region-2.jpg`, `region-3.jpg` into `public/assets/img/phot
 
 ## Part 11 — Your business email address
 
-Goal: the public sees `jason@ironcladrealty.ca`; the mail itself arrives in and is answered from your existing Gmail (`jasonhinchlifferealty@gmail.com`), which stays private. Do this after Parts 6 and 7.
+Goal: the public sees `jason@ironcladrealty.ca`; the mail itself arrives in and is answered from your existing Gmail (`jasonhinchlifferealty@gmail.com`), which stays private. **Note: you already did 11a before Part 7** (it had to come first so the Resend signup email had somewhere to land) — skip to 11b.
 
 ### 11a. Receive mail at jason@ironcladrealty.ca (Cloudflare Email Routing — free)
 1. Cloudflare → **ironcladrealty.ca** → left menu **Email** → **Email Routing** → **Get started**.

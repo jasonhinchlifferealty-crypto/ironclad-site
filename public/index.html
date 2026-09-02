@@ -16,7 +16,7 @@
 <link rel="preload" href="/assets/fonts/archivo-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/archivo-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/vendor/leaflet.css">
-<link rel="stylesheet" href="/assets/css/site.css?v=1.1">
+<link rel="stylesheet" href="/assets/css/site.css?v=1.4">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -55,7 +55,7 @@
   </div>
 </header>
 
-<div class="notice" id="sampleNotice"><strong>Sample figures.</strong> The map is showing layout data. Real neighbourhood numbers arrive with the first monthly update.</div>
+<div class="notice" id="sampleNotice"><strong>Sample figures.</strong> Live market data is temporarily unavailable — the map is showing placeholder numbers.</div>
 
 <!-- ============ THE PULSE ============ -->
 <section class="pulse" id="pulse" aria-labelledby="pulse-title">
@@ -66,7 +66,7 @@
         <span class="label muted"><span id="pulsePeriod">—</span></span>
       </div>
       <h1 class="display" id="pulse-title">Know your street before you list.</h1>
-      <p class="lead">Median prices, days on market, and activity for every neighbourhood, Sussex to Saint John. Pick yours on the map or below.</p>
+      <p class="lead">Live asking prices, inventory, and market activity for every neighbourhood, Sussex to Saint John — straight from the MLS®. Pick yours on the map or below.</p>
     </div>
 
     <div class="pulse-map">
@@ -93,19 +93,19 @@
           <h2 class="display" id="detailName" style="margin-top:6px">—</h2>
         </div>
         <div class="stat-grid">
-          <div class="stat"><div class="num" id="dMedian">—</div><div class="k">Median sale price</div></div>
-          <div class="stat"><div class="num" id="dDom">—</div><div class="k">Median days on market</div></div>
-          <div class="stat"><div class="num" id="dSales">—</div><div class="k">Sales, <span id="dPeriod">this period</span></div></div>
+          <div class="stat"><div class="num" id="dAsk">—</div><div class="k">Median asking price</div></div>
           <div class="stat"><div class="num" id="dActive">—</div><div class="k">Homes for sale now</div></div>
-          <div class="stat"><div class="num" id="dYoy">—</div><div class="k">Median price, year over year</div></div>
-          <div class="stat"><div class="num" id="dLts">—</div><div class="k">Sale price vs. list price</div></div>
+          <div class="stat"><div class="num" id="dDom">—</div><div class="k">Median days listed</div></div>
+          <div class="stat"><div class="num" id="dNew">—</div><div class="k">New in the last 30 days</div></div>
+          <div class="stat"><div class="num" id="dRed">—</div><div class="k">Listings with a price cut</div></div>
+          <div class="stat"><div class="num" id="dRange">—</div><div class="k">Middle asking range</div></div>
         </div>
         <div class="activity"><span class="label muted" id="dActivity">—</span><div class="meter" id="dMeter"><i></i><i></i><i></i><i></i><i></i></div></div>
         <p class="read" id="dRead"></p>
         <div class="snapshot-cta">
           <span class="label" style="color:rgba(255,255,255,.66)">For homeowners here</span>
           <h3 class="h3">Your street, not the neighbourhood average.</h3>
-          <p>Tell us your address and we'll send a Street-Level Equity Snapshot: comparable sales near you, an evidence-based value range, and what's competing with you right now.</p>
+          <p>The map shows what sellers are asking. What homes actually sell for on your street — recent comparable sales and an evidence-based value range, prepared for your address — comes in the snapshot.</p>
           <button class="btn btn-primary btn-block" type="button" data-snapshot>Get my street-level snapshot</button>
         </div>
       </div>
@@ -115,10 +115,10 @@
 
 <div class="strip" aria-label="Region at a glance">
   <div class="wrap">
-    <div class="cell"><div class="num" id="rMedian">—</div><div class="k">Region median price</div></div>
-    <div class="cell"><div class="num" id="rDom">—</div><div class="k">Region days on market</div></div>
-    <div class="cell"><div class="num" id="rSales">—</div><div class="k">Homes sold, <span id="rPeriod">this period</span></div></div>
-    <div class="cell"><div class="num" id="rLts">—</div><div class="k">Sale vs. list, region</div></div>
+    <div class="cell"><div class="num" id="rMedian">—</div><div class="k">Region median asking</div></div>
+    <div class="cell"><div class="num" id="rActive">—</div><div class="k">Homes for sale now</div></div>
+    <div class="cell"><div class="num" id="rNew">—</div><div class="k">Listed in the last 30 days</div></div>
+    <div class="cell"><div class="num" id="rRed">—</div><div class="k">Share with a price cut</div></div>
   </div>
 </div>
 
@@ -128,7 +128,7 @@
     <div class="stack" style="--stack:20px">
       <span class="label red">Street-Level Equity Snapshot</span>
       <h2 class="h2" id="snap-title">The map shows the neighbourhood. The snapshot shows your street.</h2>
-      <p class="lead">Neighbourhood medians are a starting point. What your home is worth depends on the sales within a few streets, in the last few months, at your size and condition. That's what the snapshot pulls.</p>
+      <p class="lead">Asking prices tell you the competition. What your home is worth is set by actual sales — within a few streets, in the last few months, at your size and condition. That's what the snapshot is built from, and it's not on the map.</p>
       <p><button class="btn btn-primary btn-lg" type="button" data-snapshot>Get my street-level snapshot</button></p>
     </div>
     <div>
@@ -330,7 +330,7 @@
 </div>
 
 <script src="/assets/vendor/leaflet.js"></script>
-<script src="/assets/js/config.js?v=1.1"></script>
-<script src="/assets/js/pulse.js?v=1.1"></script>
+<script src="/assets/js/config.js?v=1.4"></script>
+<script src="/assets/js/pulse.js?v=1.4"></script>
 </body>
 </html>

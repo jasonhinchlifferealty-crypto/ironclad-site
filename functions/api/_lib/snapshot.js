@@ -11,15 +11,20 @@
  *   RESEND_API_KEY       required to send email (resend.com — free tier is plenty)
  *   SNAPSHOT_ENABLED     "true" to run this pipeline at all
  *   SNAPSHOT_FROM        e.g.  Jason Hinchliffe <jason@ironcladrealty.ca>   (domain must be verified in Resend)
- *   SHOW_COMP_DETAILS    "true" to include street names on comps. Default off: comps are described
- *                        by type/distance only. Turn on ONLY after your board confirms sold-price
- *                        display rules for direct email. The range itself is always shown.
+ *   COMP_DISPLAY         What the consumer email shows about comparables. One of:
+ *                          "none"       — the value range and aggregate stats only; no individual comps (safest)
+ *                          "anonymized" — comps by type/distance/price, no addresses (default)
+ *                          "full"       — comps with street names (only with written board/broker approval)
+ *                        Whatever this is set to, the full comp list always goes to YOU in the FUB note.
+ *   (SHOW_COMP_DETAILS   legacy: "true" behaves like COMP_DISPLAY=full)
  *   SITE_URL             defaults to https://ironcladrealty.ca
  */
 
 const REPLIERS = "https://api.repliers.io";
 
 /* ---------------- public entry ---------------- */
+export { computeRange, renderEmailHTML, renderEmailText, sendEmail, fubNote, money };
+
 export async function runSnapshot(env, lead) {
   // lead: { id, email, firstName, address, areaName, timeline }
   const log = (k, v) => env.LEADS?.put(`snapshot-${k}:${lead.id}`, JSON.stringify(v)).catch(() => {});
@@ -43,9 +48,12 @@ export async function runSnapshot(env, lead) {
       throw new Error(sent.note || "Email could not be sent");
     }
 
+    const compLines = comps.list.slice(0, 10).map(c =>
+      `  ${c.street ? c.street + (c.city ? ", " + c.city : "") : (c.distKm != null ? c.distKm + " km away" : "nearby")} — ${money(c.price)}${c.dom != null ? ", " + c.dom + " DOM" : ""}${c.beds ? ", " + c.beds + "bd" : ""}`).join("\n");
     await fubNote(env, lead, ["Snapshot-Sent"],
       `Snapshot emailed automatically.\nRange: ${money(range.low)}–${money(range.high)} (midpoint ${money(range.mid)})\nBased on ${comps.list.length} sales within ${comps.radiusKm} km over ${comps.months} months.` +
-      (actives ? `\nActive competition: ${actives.count} listings nearby.` : ""));
+      (actives ? `\nActive competition: ${actives.count} listings nearby.` : "") +
+      `\n\nComps (internal — for your call):\n${compLines}`);
     await log("done", { range, comps: comps.list.length });
   } catch (err) {
     await fubNote(env, lead, ["Snapshot-Manual"],
@@ -131,7 +139,8 @@ function computeRange(comps) {
 /* ---------------- email ---------------- */
 function renderEmailHTML(env, lead, geo, comps, actives, range) {
   const site = env.SITE_URL || "https://ironcladrealty.ca";
-  const showDetails = env.SHOW_COMP_DETAILS === "true";
+  const mode = (env.COMP_DISPLAY || (env.SHOW_COMP_DETAILS === "true" ? "full" : "anonymized")).toLowerCase();
+  const showDetails = mode === "full";
   const name = lead.firstName || "there";
   const rows = comps.list.slice(0, 8).map(c => {
     const what = [c.beds ? c.beds + "-bed" : null, (c.type || "home").toLowerCase()].filter(Boolean).join(" ");
@@ -162,8 +171,8 @@ function renderEmailHTML(env, lead, geo, comps, actives, range) {
     <div style="font:800 34px/1.1 Archivo,'Helvetica Neue',Arial,sans-serif;color:#201E1D;margin:10px 0 4px">${money(range.low)} &ndash; ${money(range.high)}</div>
     <div style="font:400 13px/1.5 Archivo,'Helvetica Neue',Arial,sans-serif;color:#6b6867">Midpoint ${money(range.mid)} &middot; built from ${comps.list.length} sales within ${comps.radiusKm} km over the last ${comps.months} months. This is a data range, not an appraisal &mdash; condition, finishes, and timing move it.</div>
 
-    <div style="font:600 11px/1 Archivo,'Helvetica Neue',Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6b6867;margin-top:28px;border-top:3px solid #201E1D;padding-top:14px">The comparable sales</div>
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:4px">${rows}</table>
+    ${mode === "none" ? "" : `<div style="font:600 11px/1 Archivo,'Helvetica Neue',Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6b6867;margin-top:28px;border-top:3px solid #201E1D;padding-top:14px">The comparable sales</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:4px">${rows}</table>`}
 
     ${actives ? `<div style="font:600 11px/1 Archivo,'Helvetica Neue',Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6b6867;margin-top:28px;border-top:3px solid #201E1D;padding-top:14px">Your competition today</div>
     <p style="font:400 14px/1.55 Archivo,'Helvetica Neue',Arial,sans-serif;color:#201E1D;margin:8px 0 0">${actives.count} homes are currently for sale within 2 km${actives.medianList ? ", median asking " + money(actives.medianList) : ""}. Where you price against them decides your days on market.</p>` : ""}

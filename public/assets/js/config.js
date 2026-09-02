@@ -20,8 +20,9 @@ window.IRONCLAD = {
   mapCenter: [45.36, -66.02],
   mapZoom: 10.6,
 
-  // Where the map data comes from. Leave as-is for the monthly file. When Repliers is live,
-  // the launch guide shows the one-line change to "/api/pulse".
-  pulseUrl: "/data/pulse.json",
+  // Where the map data comes from. "/api/pulse" is live MLS® actives, aggregated and cached.
+  // If it's ever unreachable, the site falls back to the static sample file automatically.
+  pulseUrl: "/api/pulse",
+  pulseFallbackUrl: "/data/pulse.json",
   areasUrl: "/data/areas.geojson"
 };

@@ -32,12 +32,16 @@
   var pulse = null, areas = null, layers = {}, selectedId = null, map = null;
 
   /* ---------- fetch data ---------- */
+  function fetchPulse() {
+    return fetch(C.pulseUrl || "/api/pulse").then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .catch(function () { return fetch(C.pulseFallbackUrl || "/data/pulse.json").then(function (r) { return r.json(); }); });
+  }
   Promise.all([
     fetch(C.areasUrl || "/data/areas.geojson").then(function (r) { return r.json(); }),
-    fetch(C.pulseUrl || "/data/pulse.json").then(function (r) { return r.json(); })
+    fetchPulse()
   ]).then(function (res) {
     areas = res[0]; pulse = res[1];
-    if (pulse.sample) $("#sampleNotice").classList.add("show");
+    if (!pulse.live) $("#sampleNotice").classList.add("show");
     renderRegion(); renderList(); initMap();
   }).catch(function (err) {
     console.error(err);
@@ -50,13 +54,14 @@
   /* ---------- region strip ---------- */
   function renderRegion() {
     var r = pulse.region || {};
-    $("#pulsePeriod").textContent = pulse.period || "";
-    $("#rPeriod").textContent = pulse.period || "this period";
-    $("#dPeriod").textContent = pulse.period || "this period";
-    $("#rMedian").textContent = money(r.median);
-    $("#rDom").textContent = r.dom != null ? r.dom + " days" : "—";
-    $("#rSales").textContent = r.sales != null ? r.sales.toLocaleString("en-CA") : "—";
-    $("#rLts").textContent = pct(r.listToSale);
+    var upd = pulse.updated ? new Date(pulse.updated) : null;
+    $("#pulsePeriod").textContent = pulse.live
+      ? "Live · updated " + (upd ? upd.toLocaleDateString("en-CA", { month: "short", day: "numeric" }) + ", " + upd.toLocaleTimeString("en-CA", { hour: "numeric", minute: "2-digit" }) : "today")
+      : "Sample data";
+    $("#rMedian").textContent = money(r.ask);
+    $("#rActive").textContent = r.active != null ? r.active.toLocaleString("en-CA") : "—";
+    $("#rNew").textContent = r.new30 != null ? r.new30.toLocaleString("en-CA") : "—";
+    $("#rRed").textContent = pct(r.reducedPct);
   }
 
   /* ---------- neighbourhood list ---------- */
@@ -72,7 +77,7 @@
       var b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-pressed", "false"); b.dataset.id = p.id;
       b.innerHTML = '<span class="swatch" style="opacity:' + (OPACITY[s.activity] || 0.3) + '"></span>' +
         '<span class="area-name">' + p.name + (p.parent ? '<small>in ' + p.parent + '</small>' : '') + '</span>' +
-        '<span class="area-median">' + moneyK(s.median) + '</span>';
+        '<span class="area-median">' + moneyK(s.ask) + '</span>';
       b.addEventListener("click", function () { select(p.id, true); });
       b.addEventListener("mouseenter", function () { highlight(p.id, true); });
       b.addEventListener("mouseleave", function () { highlight(p.id, false); });
@@ -94,7 +99,7 @@
       onEachFeature: function (f, layer) {
         var id = f.properties.id; layers[id] = layer;
         var s = statsFor(id) || {};
-        layer.bindTooltip(f.properties.name + " · " + moneyK(s.median), { sticky: true, direction: "top", opacity: 1 });
+        layer.bindTooltip(f.properties.name + " · " + moneyK(s.ask) + " ask", { sticky: true, direction: "top", opacity: 1 });
         layer.on("mouseover", function () { highlight(id, true); });
         layer.on("mouseout", function () { highlight(id, false); });
         layer.on("click", function () { select(id, false); });
@@ -145,12 +150,12 @@
     var p = f.properties, s = statsFor(p.id) || {}, r = pulse.region || {};
     $("#detailGroup").textContent = p.group + (p.parent ? " · " + p.parent : "");
     $("#detailName").textContent = p.name;
-    $("#dMedian").textContent = money(s.median);
-    $("#dDom").innerHTML = s.dom != null ? s.dom + '<span class="unit">days</span>' : "—";
-    $("#dSales").textContent = s.sales != null ? s.sales : "—";
+    $("#dAsk").textContent = money(s.ask);
     $("#dActive").textContent = s.active != null ? s.active : "—";
-    var yoyEl = $("#dYoy"); yoyEl.textContent = pct(s.yoy, true); yoyEl.classList.toggle("up", (s.yoy || 0) > 0);
-    $("#dLts").textContent = pct(s.listToSale);
+    $("#dDom").innerHTML = s.dom != null ? s.dom + '<span class="unit">days</span>' : "—";
+    $("#dNew").textContent = s.new30 != null ? s.new30 : "—";
+    $("#dRed").textContent = pct(s.reducedPct);
+    $("#dRange").textContent = (s.askP25 != null && s.askP75 != null) ? moneyK(s.askP25) + "–" + moneyK(s.askP75) : "—";
     $("#dActivity").textContent = (LEVEL_LABEL[s.activity] || "—") + " market";
     var idx = LEVELS.indexOf(s.activity);
     $$("#dMeter i").forEach(function (i, k) { i.classList.toggle("on", k <= idx); });
@@ -159,16 +164,17 @@
   }
 
   function plainRead(p, s, r) {
-    if (!s.median) return "";
+    if (!s.active) return "No homes are currently listed in " + p.name + ". A quiet stretch — which can mean pent-up demand for the next listing.";
     var parts = [];
+    parts.push(s.active + (s.active === 1 ? " home is" : " homes are") + " for sale in " + p.name + (s.ask ? " at a median ask of " + moneyK(s.ask) + "." : "."));
     if (s.dom != null && r.dom != null) {
       var d = r.dom - s.dom;
-      parts.push("Homes in " + p.name + " are selling in about " + s.dom + " days" + (Math.abs(d) >= 2 ? (d > 0 ? ", " + d + " days faster than the region." : ", " + Math.abs(d) + " days slower than the region.") : ", in line with the region."));
+      parts.push("The typical listing has been up " + s.dom + " days" + (Math.abs(d) >= 3 ? (d > 0 ? " — moving quicker than the region." : " — sitting longer than the region.") : ", in line with the region."));
     }
-    if (s.listToSale != null) parts.push(s.listToSale >= 1 ? "Sellers are getting list price or better." : "Sellers are getting about " + (s.listToSale * 100).toFixed(1) + "% of list price.");
-    if (s.active != null && s.sales != null && s.sales > 0) {
-      var months = s.active / s.sales;
-      parts.push("At this pace there's roughly " + (months < 1 ? "under a month" : months.toFixed(1) + " months") + " of inventory, which " + (months < 2 ? "favours sellers." : months < 4 ? "is balanced." : "favours buyers."));
+    if (s.new30) parts.push(s.new30 + " arrived in the last 30 days.");
+    if (s.reducedPct != null) {
+      var rp = Math.round(s.reducedPct * 100);
+      parts.push(rp <= 10 ? "Only " + rp + "% have cut their price — sellers are holding firm." : rp >= 30 ? rp + "% have cut their price — buyers have room to negotiate." : rp + "% have cut their price.");
     }
     return parts.join(" ");
   }
