@@ -8,7 +8,7 @@ window.IRONCLAD = {
 
   // Paste your Google Calendar appointment page link here (see launch guide, step "Book a Call").
   // Leave empty and the Book a Call buttons will open the callback form instead.
-  bookingUrl: "",
+  bookingUrl: "https://calendar.app.google/1DfsVM4th6DdDWtj7",
 
   // Map tiles: OpenStreetMap (free, no key; the site greys them via CSS to match the brand).
   // Optional upgrade if traffic ever grows: get a free MapTiler key and swap in
