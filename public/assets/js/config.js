@@ -23,6 +23,11 @@ window.IRONCLAD = {
 
   // Where the map data comes from. "/api/pulse" is live MLS® actives, aggregated and cached.
   // If it's ever unreachable, the site falls back to the static sample file automatically.
+  // Master switch for showing individual listings (map pins, cards, neighbourhood pages).
+  // Flip to true when the NBREB/Repliers display sign-off is in hand. Everything is built and waiting.
+  listingsEnabled: false,
+  listingImageBase: "https://cdn.repliers.io/",
+
   pulseUrl: "/api/pulse",
   pulseFallbackUrl: "/data/pulse.json",
   areasUrl: "/data/areas.geojson"

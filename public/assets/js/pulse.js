@@ -130,6 +130,7 @@
     if (layers[id]) { layers[id].setStyle(styleFor(id, false)); layers[id].bringToFront(); if (map) map.fitBounds(layers[id].getBounds(), { padding: [90, 90], maxZoom: 12.4 }); }
     $$(".area-list button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.id === id)); });
     renderDetail(f); $("#mapHint").classList.add("hidden");
+    if (window.IroncladListings && window.IroncladListings.enabled()) window.IroncladListings.showForArea(map, id);
     $("#areaListWrap").classList.add("hide"); $("#areaDetail").classList.add("show");
     if (window.matchMedia("(max-width: 860px)").matches) {
       $("#areaDetail").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -141,6 +142,7 @@
     if (prev && layers[prev]) layers[prev].setStyle(styleFor(prev, false));
     $$(".area-list button").forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
     $("#areaListWrap").classList.remove("hide"); $("#areaDetail").classList.remove("show");
+    if (window.IroncladListings) window.IroncladListings.clear(map);
     if (map) map.fitBounds(L.geoJSON(areas).getBounds(), { padding: [24, 24] });
     if (history.replaceState) history.replaceState(null, "", "#pulse");
   }
@@ -203,7 +205,8 @@
   }
   function closeModal() { modal.classList.remove("open"); modal.hidden = true; document.body.style.overflow = ""; if (lastFocus) lastFocus.focus(); }
   $$("[data-snapshot]").forEach(function (b) { b.addEventListener("click", function (e) { e.preventDefault(); openModal("seller"); }); });
-  $$("[data-buyer]").forEach(function (b) { b.addEventListener("click", function (e) { e.preventDefault(); openModal("buyer"); }); });
+  $$("[data-buyer]").forEach(function (b) { b.addEventListener("click", function (e) { e.preventDefault(); leadForm.listingMls.value = ""; leadForm.listingAddress.value = ""; openModal("buyer"); }); });
+  window.IroncladOpenBuyer = function (listing) { openModal("buyer"); if (listing) { $("#leadIntro").textContent = "About " + (listing.street ? listing.street + ", " + listing.city : "this " + (listing.type || "home").toLowerCase() + " in " + listing.city) + " — tell us how to reach you and we'll be in touch today."; } };
   $$("[data-close]", modal).forEach(function (b) { b.addEventListener("click", closeModal); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && modal.classList.contains("open")) closeModal(); });
 

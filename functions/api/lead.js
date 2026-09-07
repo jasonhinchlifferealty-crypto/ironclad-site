@@ -81,7 +81,11 @@ export async function onRequestPost(context) {
     tags.push("Buyer", "Buyer-Lead");
     if (TIMELINE_TAG[timeline]) tags.push(TIMELINE_TAG[timeline]);
     if (outsideCoverage(body.lookingIn)) tags.push("Referral");
-    message = `Buyer match request.\nLooking in: ${body.lookingIn || "(none)"}\nBudget: ${body.budget || "(none)"}\nTimeline: ${timeline || "(none)"}\nPage: ${body.page || ""}`;
+    const lMls = String(body.listingMls || "").trim();
+    const lAddr = String(body.listingAddress || "").trim();
+    if (lMls || lAddr) { tags.push("Listing-Inquiry"); source = "Listing-Inquiry"; }
+    message = (lMls || lAddr ? `LISTING INQUIRY — wants representation on:\n${lAddr}${lMls ? " (MLS® " + lMls + ")" : ""}\n\n` : "Buyer match request.\n") +
+      `Looking in: ${body.lookingIn || "(none)"}\nBudget: ${body.budget || "(none)"}\nTimeline: ${timeline || "(none)"}\nPage: ${body.page || ""}`;
   } else {
     fubType = "Registration"; source = "KV-Pulse-Signup";
     tags.push("KV-Pulse-Subscriber");

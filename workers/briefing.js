@@ -56,7 +56,21 @@ async function runBriefing(env, { send }) {
     } catch (e) { data.errors.push(`${label}: ${e.message}`); return null; }
   };
 
+  // New listings: some feeds reject sortBy or minListDate — fall back gracefully and finish the job ourselves.
   data.newListings  = await pull("new listings",  { status: "A", minListDate: sinceDate, class: "residential", resultsPerPage: 100, sortBy: "listDateDesc" });
+  if (data.newListings === null) {
+    data.errors = data.errors.filter(e => !e.startsWith("new listings:"));
+    data.newListings = await pull("new listings (no sort)", { status: "A", minListDate: sinceDate, class: "residential", resultsPerPage: 100 });
+  }
+  if (data.newListings === null) {
+    data.errors = data.errors.filter(e => !e.startsWith("new listings (no sort):"));
+    const all = await pull("new listings (client-side filter)", { status: "A", class: "residential", resultsPerPage: 100 });
+    if (all) {
+      const cutoff = since.getTime();
+      data.newListings = all.filter(l => l.listDateRaw && new Date(l.listDateRaw).getTime() >= cutoff);
+    }
+  }
+  if (data.newListings) data.newListings.sort((a, b) => (b.listDateRaw ? new Date(b.listDateRaw).getTime() : 0) - (a.listDateRaw ? new Date(a.listDateRaw).getTime() : 0));
   data.priceChanges = await pull("price changes", { status: "A", lastStatus: "Pc", minUpdatedOn: sinceDate, class: "residential", resultsPerPage: 100 });
   data.solds        = await pull("solds",         { status: "U", lastStatus: "Sld", minSoldDate: sinceDate, class: "residential", resultsPerPage: 100, sortBy: "soldDateDesc" });
   data.expireds     = await pull("expireds",      { status: "U", lastStatus: "Exp", minUpdatedOn: sinceDate, class: "residential", resultsPerPage: 100 });
@@ -83,7 +97,10 @@ async function runBriefing(env, { send }) {
 async function repliersGet(env, params) {
   const qs = new URLSearchParams(params).toString();
   const r = await fetch(`${REPLIERS}/listings?${qs}`, { headers: { "REPLIERS-API-KEY": env.REPLIERS_API_KEY } });
-  if (!r.ok) throw new Error(`Repliers ${r.status}`);
+  if (!r.ok) {
+    const body = (await r.text()).replace(/\s+/g, " ").slice(0, 160);
+    throw new Error(`Repliers ${r.status}${body ? " — " + body : ""}`);
+  }
   return r.json();
 }
 function normalize(j) {
@@ -95,7 +112,8 @@ function normalize(j) {
     sold: num(l.soldPrice),
     dom: num(l.daysOnMarket),
     beds: l.details && l.details.numBedrooms,
-    type: (l.details && l.details.propertyType) || "home"
+    type: (l.details && l.details.propertyType) || "home",
+    listDateRaw: l.listDate || null
   }));
 }
 

@@ -16,7 +16,7 @@
 <link rel="preload" href="/assets/fonts/archivo-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/archivo-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/vendor/leaflet.css">
-<link rel="stylesheet" href="/assets/css/site.css?v=1.5">
+<link rel="stylesheet" href="/assets/css/site.css?v=1.6">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -101,6 +101,7 @@
           <div class="stat"><div class="num" id="dRange">—</div><div class="k">Middle asking range</div></div>
         </div>
         <div class="activity"><span class="label muted" id="dActivity">—</span><div class="meter" id="dMeter"><i></i><i></i><i></i><i></i><i></i></div></div>
+        <div class="listings-hint" id="listingsHint"></div>
         <p class="read" id="dRead"></p>
         <div class="snapshot-cta">
           <span class="label" style="color:rgba(255,255,255,.66)">For homeowners here</span>
@@ -291,6 +292,8 @@
       <input type="hidden" name="type" value="seller">
       <input type="hidden" name="area" id="leadArea" value="">
       <input type="hidden" name="areaName" id="leadAreaName" value="">
+      <input type="hidden" name="listingMls" id="leadListingMls" value="">
+      <input type="hidden" name="listingAddress" id="leadListingAddr" value="">
       <div class="form-grid">
         <div class="field span2" id="addressField">
           <label for="lAddress">Property address</label>
@@ -330,7 +333,8 @@
 </div>
 
 <script src="/assets/vendor/leaflet.js"></script>
-<script src="/assets/js/config.js?v=1.5"></script>
-<script src="/assets/js/pulse.js?v=1.5"></script>
+<script src="/assets/js/config.js?v=1.6"></script>
+<script src="/assets/js/pulse.js?v=1.6"></script>
+<script src="/assets/js/listings.js?v=1.6"></script>
 </body>
 </html>
