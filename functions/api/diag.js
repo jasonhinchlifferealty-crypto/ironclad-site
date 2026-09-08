@@ -66,5 +66,35 @@ export async function onRequestGet({ request, env }) {
   await call("U-province-minSoldDate", { status: "U", minSoldDate: since6.toISOString().slice(0, 10), resultsPerPage: 5 });
   if (geo) await call("U-radius-from-geocode", { status: "U", lat: geo.lat, long: geo.lng, radius: 10, resultsPerPage: 5 });
 
+
+  // ---- Investor probe: what does NB multi-unit inventory look like in this feed? ----
+  const tryQ = async (label, params) => { await call(label, params); };
+  await tryQ("inv-resi-all-types", { status: "A", class: "residential", resultsPerPage: 100, pageNum: 1 });
+  await tryQ("inv-commercial", { status: "A", class: "commercial", resultsPerPage: 20 });
+  // pull a bigger residential sample and summarize propertyType + income-field coverage
+  try {
+    const types = {}; let incomeFields = {}; let samples = [];
+    for (let pg = 1; pg <= 4; pg++) {
+      const qs = new URLSearchParams({ status: "A", resultsPerPage: 100, pageNum: pg });
+      const r = await fetch(`${REPLIERS}/listings?${qs}`, { headers: { "REPLIERS-API-KEY": env.REPLIERS_API_KEY || "" } });
+      if (!r.ok) break;
+      const j = await r.json();
+      for (const l of (j.listings || [])) {
+        const t = (l.details && l.details.propertyType) || l.class || "?";
+        types[t] = (types[t] || 0) + 1;
+        const d = l.details || {};
+        const multiish = /du?plex|triplex|fourplex|multi|income|apartment|unit/i.test(JSON.stringify([t, d.style, d.description ? "" : ""]));
+        for (const k of Object.keys(d)) {
+          if (/income|expense|rent|unit|cap|vacan|operat|tax/i.test(k) && d[k] != null && d[k] !== "" ) incomeFields[k] = (incomeFields[k] || 0) + 1;
+        }
+        if (multiish && samples.length < 2) samples.push({ mls: l.mlsNumber, type: t, price: l.listPrice, city: l.address && l.address.city, details: d });
+      }
+      if ((j.listings || []).length < 100) break;
+    }
+    out.steps.push({ step: "inv-propertyType-census", counts: types });
+    out.steps.push({ step: "inv-income-field-coverage", note: "field name: how many of ~400 listings populate it", fields: incomeFields });
+    out.steps.push({ step: "inv-multiunit-samples", samples });
+  } catch (e) { out.steps.push({ step: "inv-census", error: String(e) }); }
+
   return new Response(JSON.stringify(out, null, 2), { headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
 }
