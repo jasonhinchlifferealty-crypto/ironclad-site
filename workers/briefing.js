@@ -11,7 +11,7 @@
  *   RESEND_API_KEY     required (same Resend account as the snapshot emails)
  *   BRIEFING_TO        default jason@ironcladrealty.ca
  *   BRIEFING_FROM      default "Ironclad Briefing <jason@ironcladrealty.ca>" (domain verified in Resend)
- *   BRIEFING_CITIES    comma list; default "Saint John,Quispamsis,Rothesay,Hampton,Grand Bay-Westfield,Sussex"
+ *   BRIEFING_CITIES    comma list; default "Saint John,Quispamsis,Rothesay,Hampton,Grand Bay-Westfield,Sussex,Sussex Corner,Penobsquis,Apohaqui,Roachville,Norton,Bloomfield,Passekeag,Nauwigewauk"
  *   BRIEFING_TEST_KEY  any secret word; lets you preview in a browser (see launch guide)
  *   SITE_URL           default https://ironcladrealty.ca
  *
@@ -44,7 +44,7 @@ async function runBriefing(env, { send }) {
   const hours = isMonday ? 72 : 24;
   const since = new Date(now.getTime() - hours * 3600 * 1000);
   const sinceDate = since.toISOString().slice(0, 10);
-  const cities = (env.BRIEFING_CITIES || "Saint John,Quispamsis,Rothesay,Hampton,Grand Bay-Westfield,Sussex")
+  const cities = (env.BRIEFING_CITIES || "Saint John,Quispamsis,Rothesay,Hampton,Grand Bay-Westfield,Sussex,Sussex Corner,Penobsquis,Apohaqui,Roachville,Norton,Bloomfield,Passekeag,Nauwigewauk")
     .split(",").map(s => s.trim()).filter(Boolean);
 
   const data = { newListings: null, priceChanges: null, solds: null, expireds: null, errors: [] };

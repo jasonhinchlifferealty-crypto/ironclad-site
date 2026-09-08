@@ -124,6 +124,86 @@
    "new30": 12,
    "reducedPct": 0.26,
    "activity": "moderate"
+  },
+  "sussex-corner": {
+   "active": 3,
+   "ask": 289900,
+   "askP25": 249900,
+   "askP75": 339000,
+   "dom": 29,
+   "new30": 1,
+   "reducedPct": 0.33,
+   "activity": "moderate"
+  },
+  "penobsquis": {
+   "active": 3,
+   "ask": 289900,
+   "askP25": 249900,
+   "askP75": 339000,
+   "dom": 29,
+   "new30": 1,
+   "reducedPct": 0.33,
+   "activity": "moderate"
+  },
+  "apohaqui": {
+   "active": 3,
+   "ask": 289900,
+   "askP25": 249900,
+   "askP75": 339000,
+   "dom": 29,
+   "new30": 1,
+   "reducedPct": 0.33,
+   "activity": "moderate"
+  },
+  "roachville": {
+   "active": 3,
+   "ask": 289900,
+   "askP25": 249900,
+   "askP75": 339000,
+   "dom": 29,
+   "new30": 1,
+   "reducedPct": 0.33,
+   "activity": "moderate"
+  },
+  "norton": {
+   "active": 3,
+   "ask": 289900,
+   "askP25": 249900,
+   "askP75": 339000,
+   "dom": 29,
+   "new30": 1,
+   "reducedPct": 0.33,
+   "activity": "moderate"
+  },
+  "bloomfield": {
+   "active": 3,
+   "ask": 289900,
+   "askP25": 249900,
+   "askP75": 339000,
+   "dom": 29,
+   "new30": 1,
+   "reducedPct": 0.33,
+   "activity": "moderate"
+  },
+  "passekeag": {
+   "active": 3,
+   "ask": 289900,
+   "askP25": 249900,
+   "askP75": 339000,
+   "dom": 29,
+   "new30": 1,
+   "reducedPct": 0.33,
+   "activity": "moderate"
+  },
+  "nauwigewauk": {
+   "active": 3,
+   "ask": 289900,
+   "askP25": 249900,
+   "askP75": 339000,
+   "dom": 29,
+   "new30": 1,
+   "reducedPct": 0.33,
+   "activity": "moderate"
   }
  }
 }

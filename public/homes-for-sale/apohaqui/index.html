@@ -2,9 +2,9 @@
 <html lang="en-CA">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Homes for sale in North End, NB — live listings & market pulse | Ironclad Realty Group</title>
-<meta name="description" content="Every active MLS® listing in North End, New Brunswick, with live market stats: median asking price, days listed, and price-cut share. Updated continuously. Ironclad Realty Group — Sussex to Saint John.">
-<link rel="canonical" href="https://ironcladrealty.ca/homes-for-sale/north-end/">
+<title>Homes for sale in Apohaqui, NB — live listings & market pulse | Ironclad Realty Group</title>
+<meta name="description" content="Every active MLS® listing in Apohaqui, New Brunswick, with live market stats: median asking price, days listed, and price-cut share. Updated continuously. Ironclad Realty Group — Sussex to Saint John.">
+<link rel="canonical" href="https://ironcladrealty.ca/homes-for-sale/apohaqui/">
 <meta name="theme-color" content="#201E1D">
 <link rel="icon" href="/assets/img/shield-red.png" type="image/png">
 <link rel="stylesheet" href="/assets/css/site.css?v=1.6">
@@ -17,8 +17,8 @@
 </div></header>
 <main class="section-tight"><div class="wrap">
   <p class="label red">Homes for sale</p>
-  <h1 class="h2" style="margin-top:6px">North End, New Brunswick</h1>
-  <p class="lead" style="margin-top:10px">Every active MLS&reg; listing in North End, alongside the live market pulse for the neighbourhood. <span class="label muted" id="updatedLine"></span></p>
+  <h1 class="h2" style="margin-top:6px">Apohaqui, New Brunswick</h1>
+  <p class="lead" style="margin-top:10px">Every active MLS&reg; listing in Apohaqui, alongside the live market pulse for the neighbourhood. <span class="label muted" id="updatedLine"></span></p>
 
   <div class="strip" style="margin-top:22px"><div style="display:grid;grid-template-columns:repeat(4,1fr)">
     <div class="cell"><div class="num" id="aAsk">—</div><div class="k">Median asking</div></div>
@@ -29,13 +29,13 @@
 
   <div id="grid" class="lgrid"></div>
   <div id="pending" hidden class="section-tight" style="padding-bottom:0">
-    <p class="lead">Individual listing display is arriving here shortly. The live stats above are real — and if you tell us what you're looking for in North End, we'll send matches by email the moment they list.</p>
+    <p class="lead">Individual listing display is arriving here shortly. The live stats above are real — and if you tell us what you're looking for in Apohaqui, we'll send matches by email the moment they list.</p>
     <p style="margin-top:14px"><a class="btn btn-primary btn-lg" href="/#buy">Send me Quispamsis matches</a></p>
   </div>
 
   <section class="section-tight" style="border-top:1px solid var(--line);margin-top:40px">
     <div class="grid-2">
-      <div><h2 class="h3">Selling in North End?</h2><p style="color:var(--muted)">These are asking prices. What homes actually sell for on your street comes in a Street-Level Equity Snapshot — free, prepared for your address.</p></div>
+      <div><h2 class="h3">Selling in Apohaqui?</h2><p style="color:var(--muted)">These are asking prices. What homes actually sell for on your street comes in a Street-Level Equity Snapshot — free, prepared for your address.</p></div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><a class="btn btn-primary btn-lg" href="/#pulse">Get my street-level snapshot</a><a class="btn btn-secondary btn-lg" href="/#pulse">Open the market map</a></div>
     </div>
   </section>
@@ -51,7 +51,7 @@
 <script src="/assets/js/listings.js?v=1.6"></script>
 <script>
 (function(){
-  var AREA="north-end";
+  var AREA="apohaqui";
   fetch("/api/pulse").then(function(r){return r.json()}).then(function(p){
     var s=(p.areas||{})[AREA]||{};
     function money(n){return n==null?"—":"$"+Math.round(n).toLocaleString("en-CA")}

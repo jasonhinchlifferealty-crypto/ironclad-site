@@ -21,7 +21,7 @@
  */
 
 const REPLIERS = "https://api.repliers.io";
-const CITIES = ["Saint John", "Quispamsis", "Rothesay", "Hampton", "Grand Bay-Westfield", "Sussex"];
+const CITIES = ["Saint John", "Quispamsis", "Rothesay", "Hampton", "Grand Bay-Westfield", "Sussex", "Sussex Corner", "Penobsquis", "Apohaqui", "Roachville", "Norton", "Bloomfield", "Passekeag", "Nauwigewauk"];
 const CACHE_KEY = "pulse:cache";
 const CACHE_TTL_S = 6 * 3600;
 
