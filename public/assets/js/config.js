@@ -8,7 +8,7 @@ window.IRONCLAD = {
 
   // Paste your Google Calendar appointment page link here (see launch guide, step "Book a Call").
   // Leave empty and the Book a Call buttons will open the callback form instead.
-  bookingUrl: "",
+  bookingUrl: "https://calendar.app.google/zoCgD7G71PTJPTHj6",
 
   // Map tiles: OpenStreetMap (free, no key; the site greys them via CSS to match the brand).
   // Optional upgrade if traffic ever grows: get a free MapTiler key and swap in
@@ -25,7 +25,7 @@ window.IRONCLAD = {
   // If it's ever unreachable, the site falls back to the static sample file automatically.
   // Master switch for showing individual listings (map pins, cards, neighbourhood pages).
   // Flip to true when the NBREB/Repliers display sign-off is in hand. Everything is built and waiting.
-  listingsEnabled: false,
+  listingsEnabled: true,
   listingImageBase: "https://cdn.repliers.io/",
 
   pulseUrl: "/api/pulse",
