@@ -28,22 +28,27 @@ export async function onRequestPost({ request, env }) {
   const raw = [];
 
   // Residential Multi Family — try the server-side propertyType filter first (cheap), fall back with a note.
-  let mf = await pull(env, { status: "A", class: "residential", propertyType: "Multi Family", resultsPerPage: 100 }, 3, notes, "residential propertyType filter");
+  let mf = await pull(env, { status: "A", type: "Sale", class: "residential", propertyType: "Multi Family", resultsPerPage: 100 }, 3, notes, "residential propertyType filter");
   if (mf === null) {
     notes.push("propertyType filter rejected by feed — falling back to style keyword filter");
-    mf = await pull(env, { status: "A", class: "residential", style: "Duplex", resultsPerPage: 100 }, 3, notes, "style=Duplex fallback");
+    mf = await pull(env, { status: "A", type: "Sale", class: "residential", style: "Duplex", resultsPerPage: 100 }, 3, notes, "style=Duplex fallback");
   }
   if (mf) raw.push(...mf.map(l => ({ ...l, _src: "residential" })));
 
   // Commercial class — pull and keyword-filter for income property signals.
-  const com = await pull(env, { status: "A", class: "commercial", resultsPerPage: 100 }, 6, notes, "commercial class");
+  const com = await pull(env, { status: "A", type: "Sale", class: "commercial", resultsPerPage: 100 }, 6, notes, "commercial class");
   if (com) {
     const kw = /apartment|multi[- ]?family|(\d+)\s*unit|plex|income\s+propert|rooming/i;
     raw.push(...com.filter(l => kw.test(((l.details && l.details.description) || "") + " " + ((l.details && l.details.style) || ""))).map(l => ({ ...l, _src: "commercial" })));
   }
 
   // De-dupe by MLS
-  const seen = {}; const listings = raw.filter(l => l.mlsNumber && !seen[l.mlsNumber] && (seen[l.mlsNumber] = 1));
+  const seen = {}; const listings = raw.filter(l => {
+    if (!l.mlsNumber || seen[l.mlsNumber]) return false;
+    if (String(l.type || "Sale").toLowerCase() !== "sale") return false;   // leases out
+    if (num(l.listPrice) != null && num(l.listPrice) < 75000) return false; // lease-rate/land guard
+    return (seen[l.mlsNumber] = 1);
+  });
   const rows = listings.map(l => analyze(l)).filter(Boolean);
   return json({ ok: true, generated: new Date().toISOString(), count: rows.length, notes, rows });
 }
@@ -74,6 +79,9 @@ function analyze(l) {
 
   // Unit count: style first, then description
   let styleUnits = /duplex/i.test(style) ? 2 : /triplex/i.test(style) ? 3 : /four\s*plex|quad/i.test(style) ? 4 : null;
+  let sm = style.match(/(\d{1,3})\s*(?:\+|or more|plus)?\s*units?/i);
+  if (sm) styleUnits = parseInt(sm[1]);
+  if (/over\s*(\d{1,3})\s*units?/i.test(style)) styleUnits = parseInt(style.match(/over\s*(\d{1,3})/i)[1]) + 1;
   let descUnits = null;
   let m = desc.match(/(\d{1,2})\s*[- ]?(?:unit|suite)s?\b/i);
   if (m) descUnits = parseInt(m[1]);
@@ -86,6 +94,13 @@ function analyze(l) {
   let units = descUnits || styleUnits;
   let confidence = descUnits && styleUnits ? (descUnits === styleUnits || descUnits > 4 ? "high" : "medium") : descUnits ? "medium" : styleUnits ? "medium-low" : "manual";
   if (descUnits && styleUnits && descUnits !== styleUnits) units = Math.max(descUnits, styleUnits);
+  // Sanity: a real unit needs floor area. Under ~350 sqft/unit means the parse grabbed a stray number.
+  const sqftN = num(d.sqft);
+  if (units && sqftN && sqftN / units < 350) {
+    const recomputed = Math.max(2, Math.round(sqftN / 750));
+    units = recomputed; confidence = "low (sqft-derived)";
+  }
+  if (units && units > 60) { units = null; confidence = "manual"; }
 
   // Bedrooms per unit: most common "N bedroom" mention; default 2
   const bedMentions = [...desc.matchAll(/(\d)\s*[- ]?bed(?:room)?s?\b/gi)].map(x => parseInt(x[1])).filter(b => b >= 1 && b <= 5);
@@ -199,8 +214,8 @@ document.getElementById('tbl').addEventListener('click',function(e){ var th=e.ta
 function render(){ var tb=document.getElementById('tb'); document.getElementById('tbl').hidden=false;
   document.getElementById('countLine').textContent=rows.length+' candidates';
   tb.innerHTML=rows.map(function(r,i){ return '<tr>'+
-    '<td><input type="checkbox" data-i="'+i+'" '+(r.yield&&r.confidence!=='manual'?'checked':'')+'></td>'+
-    '<td class="yield">'+(r.yield?(r.yield*100).toFixed(1)+'%':'—')+'</td>'+
+    '<td><input type="checkbox" data-i="'+i+'" '+(r.yield&&r.confidence!=='manual'&&r.yield<0.30?'checked':'')+'></td>'+
+    '<td class="yield">'+(r.yield?((r.yield*100).toFixed(1)+'%'+(r.yield>=0.30?' <span style="color:var(--red);font-weight:400;font-size:.625rem">check parse</span>':'')):'—')+'</td>'+
     '<td>'+(r.grm?r.grm.toFixed(1):'—')+'</td>'+
     '<td>'+(r.ppu?money(r.ppu):'—')+'</td>'+
     '<td>'+money(r.price)+'</td>'+
