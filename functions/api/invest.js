@@ -76,6 +76,7 @@ function analyze(l) {
   const style = String(d.style || "");
   const price = num(l.listPrice);
   if (!price) return null;
+  const landish = /^lot\b/i.test(String(l.address && l.address.streetNumber || "")) || /^lot\b/i.test(String(l.address && l.address.streetName || "")) || /vacant land|building lot|development (?:site|opportunity|land)|approved for \d+\s*unit|zoned for/i.test(desc);
 
   // Unit count: style first, then description
   let styleUnits = /duplex/i.test(style) ? 2 : /triplex/i.test(style) ? 3 : /four\s*plex|quad/i.test(style) ? 4 : null;
@@ -109,10 +110,10 @@ function analyze(l) {
   // Red flags: granny-suite / converted patterns, land-only tells
   const flags = [];
   if (/in[- ]?law|granny|secondary suite|detached.*apartment|converted/i.test(desc)) flags.push("suite/conversion — verify legal units");
-  if (/vacant land|building lot/i.test(desc)) flags.push("may be land");
   if (d.yearBuilt && parseInt(d.yearBuilt) < 1960) flags.push("built " + d.yearBuilt);
   if (/separate (?:power |electrical |hydro )?met/i.test(desc)) flags.push("separate meters ✓");
   if (/renovat/i.test(desc)) flags.push("renovation claims");
+  if (landish) { units = null; confidence = "manual"; flags.push("development site / land — not yield-ranked"); }
 
   return {
     mls: l.mlsNumber, src: l._src,
@@ -133,7 +134,7 @@ const PAGE = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta n
 <link rel="icon" href="/assets/img/shield-red.png"><link rel="stylesheet" href="/assets/css/site.css?v=1.6">
 <style>
   .tool { max-width: 1400px; margin: 0 auto; padding: 28px var(--gutter) 80px; }
-  .rents { display:grid; grid-template-columns: repeat(4,1fr); gap:14px; margin:16px 0 4px; }
+  .rents { display:grid; grid-template-columns: repeat(5,1fr); gap:12px; margin:16px 0 4px; } @media(max-width:1100px){.rents{grid-template-columns:repeat(3,1fr)}}
   .rents .field label { font-size:.625rem; }
   .rents input { min-height:38px; padding:6px 10px; }
   table.rank { width:100%; border-collapse:collapse; margin-top:20px; font-size:.8125rem; }
@@ -188,19 +189,20 @@ const PAGE = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta n
 </div>
 <script>
 var KEY="{{KEY}}";
-var MARKETS={ "Greater Moncton":{match:/moncton|dieppe|riverview/i,r:{1:1250,2:1550,3:1750}},
+var MARKETS={ "Greater Moncton":{match:/moncton|dieppe|riverview|shediac/i,r:{1:1250,2:1550,3:1750}},
   "Saint John area":{match:/saint john|quispamsis|rothesay|hampton|grand bay/i,r:{1:1100,2:1350,3:1550}},
   "Fredericton area":{match:/fredericton|nashwaaksis|hanwell|new maryland|lincoln|oromocto/i,r:{1:1200,2:1500,3:1700}},
-  "Other NB":{match:/./,r:{1:1150,2:1400,3:1600}} };
+  "Small cities":{match:/bathurst|miramichi|edmundston|campbellton|sackville|sussex|woodstock|st\.? ?stephen|saint stephen/i,r:{1:950,2:1150,3:1300}},
+  "Rural / village NB":{match:/./,r:{1:800,2:950,3:1100}} };
 var rows=[], sortK="yield", sortD=-1;
 (function(){ var h='';
   for(var mk in MARKETS){ for(var b=1;b<=3;b++){ h+='<div class="field"><label>'+mk+' — '+b+' bed</label><input type="number" data-mk="'+mk+'" data-b="'+b+'" value="'+MARKETS[mk].r[b]+'"></div>'; } }
   document.getElementById('rents').innerHTML=h;
 })();
-function rentFor(city,beds){ var b=Math.min(Math.max(beds||2,1),3);
+function rentFor(city,beds,units){ var b=Math.min(Math.max(beds||2,1),3); if(units>=8) b=2;
   for(var mk in MARKETS){ if(MARKETS[mk].match.test(city||"")){ var inp=document.querySelector('input[data-mk="'+mk+'"][data-b="'+b+'"]'); return {mk:mk, rent: parseFloat(inp.value)||MARKETS[mk].r[b]}; } } }
 function money(n){return n==null?"—":"$"+Math.round(n).toLocaleString("en-CA")}
-function compute(){ rows.forEach(function(r){ if(r.units){ var rf=rentFor(r.city,r.beds); r.market=rf.mk; r.rent=rf.rent; r.gross=r.units*rf.rent*12; r.yield=r.gross/r.price; r.grm=r.price/r.gross; r.ppu=r.price/r.units; } else { r.gross=null;r.yield=null;r.grm=null;r.ppu=null; } }); }
+function compute(){ rows.forEach(function(r){ if(r.units){ var rf=rentFor(r.city,r.beds,r.units); r.market=rf.mk; r.rent=rf.rent; r.gross=r.units*rf.rent*12; r.yield=r.gross/r.price; r.grm=r.price/r.gross; r.ppu=r.price/r.units; } else { r.gross=null;r.yield=null;r.grm=null;r.ppu=null; } }); }
 function scan(){ var b=document.getElementById('scanBtn'); b.disabled=true; showMsg('Scanning the province — 20 to 40 seconds…',true);
   fetch(location.pathname+'?key='+encodeURIComponent(KEY),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:KEY})})
   .then(function(r){return r.json()}).then(function(j){ b.disabled=false;
