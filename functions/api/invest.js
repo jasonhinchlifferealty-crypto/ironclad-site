@@ -137,6 +137,10 @@ const PAGE = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta n
   .rents { display:grid; grid-template-columns: repeat(5,1fr); gap:12px; margin:16px 0 4px; } @media(max-width:1100px){.rents{grid-template-columns:repeat(3,1fr)}}
   .rents .field label { font-size:.625rem; }
   .rents input { min-height:38px; padding:6px 10px; }
+  .filters { display:grid; grid-template-columns: repeat(6,minmax(110px,1fr)); gap:12px; align-items:end; }
+  @media(max-width:1100px){ .filters{grid-template-columns:repeat(3,1fr)} }
+  .filters input, .filters select { min-height:38px; padding:6px 10px; width:100%; box-sizing:border-box; border:2px solid var(--ink); background:#fff; font:inherit; font-size:.8125rem; }
+  .fchk { display:flex; align-items:center; gap:8px; font-size:.75rem; color:var(--muted); grid-column: span 2; }
   table.rank { width:100%; border-collapse:collapse; margin-top:20px; font-size:.8125rem; }
   table.rank th { text-align:left; font-weight:600; font-size:.625rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); border-bottom:2px solid var(--ink); padding:8px 10px 8px 0; cursor:pointer; white-space:nowrap; }
   table.rank td { border-bottom:1px solid var(--line); padding:9px 10px 9px 0; vertical-align:top; }
@@ -162,7 +166,7 @@ const PAGE = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta n
 </style></head><body>
 <header class="site-header"><div class="wrap">
   <a class="brand" href="/"><img src="/assets/img/lockup-charcoal.png" alt="Ironclad Realty Group" style="height:34px;width:auto"></a>
-  <span class="label red">Investment Screener — internal</span>
+  <span class="label red">Investment Screener — internal · v4</span>
 </div></header>
 <div class="tool">
   <h1 class="h2">Multi-unit inventory, ranked.</h1>
@@ -171,6 +175,16 @@ const PAGE = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta n
   <h3 class="label" style="margin-top:20px">Monthly rent assumptions (editable — CMHC Oct-2025 anchored)</h3>
   <div class="rents" id="rents"></div>
 
+  <h3 class="label" style="margin-top:22px">Filters</h3>
+  <div class="filters" id="filters">
+    <div class="field"><label>Price min</label><input type="number" id="fPmin" placeholder="0" step="25000"></div>
+    <div class="field"><label>Price max</label><input type="number" id="fPmax" placeholder="any" step="25000"></div>
+    <div class="field"><label>Units min</label><input type="number" id="fUmin" placeholder="2" min="1"></div>
+    <div class="field"><label>Units max</label><input type="number" id="fUmax" placeholder="any" min="1"></div>
+    <div class="field"><label>Region</label><select id="fRegion"><option value="">All of NB</option></select></div>
+    <div class="field"><label>Source</label><select id="fSrc"><option value="">Both</option><option value="residential">Residential</option><option value="commercial">Commercial</option></select></div>
+    <label class="fchk"><input type="checkbox" id="fRanked" checked> Only rankable (hide manual / land)</label>
+  </div>
   <div class="toolbar">
     <button class="btn btn-primary" id="scanBtn" onclick="scan()">Scan the province</button>
     <button class="btn btn-secondary" onclick="buildReport()">Generate client report</button>
@@ -194,7 +208,7 @@ var MARKETS={ "Greater Moncton":{match:/moncton|dieppe|riverview|shediac/i,r:{1:
   "Fredericton area":{match:/fredericton|nashwaaksis|hanwell|new maryland|lincoln|oromocto/i,r:{1:1200,2:1500,3:1700}},
   "Small cities":{match:/bathurst|miramichi|edmundston|campbellton|sackville|sussex|woodstock|st\.? ?stephen|saint stephen/i,r:{1:950,2:1150,3:1300}},
   "Rural / village NB":{match:/./,r:{1:800,2:950,3:1100}} };
-var rows=[], sortK="yield", sortD=-1;
+var rows=[], sortK="yield", sortD=-1, sel={};
 (function(){ var h='';
   for(var mk in MARKETS){ for(var b=1;b<=3;b++){ h+='<div class="field"><label>'+mk+' — '+b+' bed</label><input type="number" data-mk="'+mk+'" data-b="'+b+'" value="'+MARKETS[mk].r[b]+'"></div>'; } }
   document.getElementById('rents').innerHTML=h;
@@ -207,26 +221,48 @@ function scan(){ var b=document.getElementById('scanBtn'); b.disabled=true; show
   fetch(location.pathname+'?key='+encodeURIComponent(KEY),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:KEY})})
   .then(function(r){return r.json()}).then(function(j){ b.disabled=false;
     if(j.error){showMsg(j.error,false);return}
-    rows=j.rows; compute(); sortRows(); render();
+    rows=j.rows; compute();
+    sel={}; rows.forEach(function(r){ sel[r.mls]=!!(r.yield&&r.confidence!=='manual'&&r.yield<0.30); });
+    populateRegions(); sortRows(); render();
     showMsg('Found '+j.count+' candidates.'+(j.notes&&j.notes.length?' Notes: '+j.notes.join(' · '):''),true);
   }).catch(function(e){b.disabled=false;showMsg(String(e),false)});
 }
 function sortRows(){ rows.sort(function(a,b){ var x=a[sortK],y=b[sortK]; if(x==null)return 1; if(y==null)return -1; return (x<y?-1:x>y?1:0)*sortD; }); }
-document.getElementById('tbl').addEventListener('click',function(e){ var th=e.target.closest('th[data-k]'); if(!th)return; var k=th.getAttribute('data-k'); if(k===sortK)sortD*=-1; else {sortK=k;sortD=-1;} sortRows(); render(); });
+function marketOf(city){ for(var mk in MARKETS){ if(MARKETS[mk].match.test(city||"")) return mk; } return "Rural / village NB"; }
+function populateRegions(){ var sel2=document.getElementById('fRegion'); var have={}; rows.forEach(function(r){have[marketOf(r.city)]=1;});
+  sel2.innerHTML='<option value="">All of NB</option>'+Object.keys(MARKETS).filter(function(m){return have[m]}).map(function(m){return '<option>'+m+'</option>'}).join(''); }
+function passes(r){
+  var pmin=parseFloat(document.getElementById('fPmin').value)||0;
+  var pmax=parseFloat(document.getElementById('fPmax').value)||Infinity;
+  var umin=parseFloat(document.getElementById('fUmin').value)||0;
+  var umax=parseFloat(document.getElementById('fUmax').value)||Infinity;
+  var reg=document.getElementById('fRegion').value;
+  var src=document.getElementById('fSrc').value;
+  var rankedOnly=document.getElementById('fRanked').checked;
+  if(r.price<pmin||r.price>pmax)return false;
+  if(rankedOnly&&(!r.units||!r.yield))return false;
+  if(r.units&&(r.units<umin||r.units>umax))return false;
+  if(reg&&marketOf(r.city)!==reg)return false;
+  if(src&&r.src!==src)return false;
+  return true;
+}
+document.getElementById('filters').addEventListener('input',function(){ if(rows.length){ sortRows(); render(); } });
+document.getElementById('tbl').addEventListener('click',function(e){ var cb=e.target.closest('input[type=checkbox][data-mls]'); if(cb){ sel[cb.getAttribute('data-mls')]=cb.checked; return; } var th=e.target.closest('th[data-k]'); if(!th)return; var k=th.getAttribute('data-k'); if(k===sortK)sortD*=-1; else {sortK=k;sortD=-1;} sortRows(); render(); });
 function render(){ var tb=document.getElementById('tb'); document.getElementById('tbl').hidden=false;
-  document.getElementById('countLine').textContent=rows.length+' candidates';
-  tb.innerHTML=rows.map(function(r,i){ return '<tr>'+
-    '<td><input type="checkbox" data-i="'+i+'" '+(r.yield&&r.confidence!=='manual'&&r.yield<0.30?'checked':'')+'></td>'+
+  var view=rows.filter(passes);
+  document.getElementById('countLine').textContent=view.length+' of '+rows.length+' candidates';
+  tb.innerHTML=view.map(function(r){ return '<tr>'+
+    '<td><input type="checkbox" data-mls="'+esc(r.mls)+'" '+(sel[r.mls]?'checked':'')+'></td>'+
     '<td class="yield">'+(r.yield?((r.yield*100).toFixed(1)+'%'+(r.yield>=0.30?' <span style="color:var(--red);font-weight:400;font-size:.625rem">check parse</span>':'')):'—')+'</td>'+
     '<td>'+(r.grm?r.grm.toFixed(1):'—')+'</td>'+
     '<td>'+(r.ppu?money(r.ppu):'—')+'</td>'+
     '<td>'+money(r.price)+'</td>'+
-    '<td><span class="conf-'+r.confidence.replace(/[^a-z-]/g,'')+'">'+(r.units||'?')+' × '+r.beds+'bd</span><br><span style="font-size:.625rem;color:var(--muted)">'+r.confidence+'</span></td>'+
+    '<td><span class="conf-'+r.confidence.replace(/[^a-z-]/g,'')+'">'+(r.units||'?')+' × '+(r.units>=8?'2bd blend':r.beds+'bd')+'</span><br><span style="font-size:.625rem;color:var(--muted)">'+r.confidence+'</span></td>'+
     '<td><strong>'+esc(r.street||'(address in listing)')+', '+esc(r.city)+'</strong><br><span style="color:var(--muted)">'+esc(r.style)+(r.yearBuilt?' · '+r.yearBuilt:'')+(r.sqft?' · '+r.sqft+' sqft':'')+' · MLS® '+r.mls+' · '+r.src+'</span></td>'+
     '<td>'+r.flags.map(function(f){return '<span class="flag">'+esc(f)+'</span>'}).join('')+'</td>'+
   '</tr>';}).join('');
 }
-function buildReport(){ var inc=[].map.call(document.querySelectorAll('#tb input:checked'),function(c){return rows[parseInt(c.getAttribute('data-i'))]}).filter(function(r){return r.yield});
+function buildReport(){ var inc=rows.filter(function(r){return sel[r.mls]&&passes(r)&&r.yield});
   if(!inc.length){showMsg('Tick at least one row first.',false);return}
   inc.sort(function(a,b){return b.yield-a.yield});
   var d=new Date().toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'});
