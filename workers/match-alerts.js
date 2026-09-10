@@ -71,20 +71,49 @@ async function run(env, send) {
 }
 
 /* ---- mirrored from functions/api/quiz-match.js — keep in sync ---- */
-function pickBest(listings, p) {
+function pickBest(listings, p, opts) {
+  opts = opts || {};
+  const prefs = p.prefs || {};
+  const W_STRONG = /waterfront|water\s?front|riverfront|river\s?front|lakefront|lake\s?front|oceanfront|deeded (?:water|beach)|water access|own(?:ed)? shoreline|on the (?:river|lake|water)|steps? (?:to|from) the (?:river|lake|beach|water)/i;
+  const W_WEAK = /river|lake|water|beach|ocean/i;
+  const S_STRONG = /\b\d+(?:\.\d+)?\s*acres?\b|acreage/i;
+  const S_WEAK = /large lot|private lot|big yard|double lot|oversized lot/i;
+  const NEG = /\bas[- ]is\b|handyman|needs (?:work|tlc)|\btlc\b|fixer|sold where is|estate sale/i;
+  const TURNKEY = /renovated|updated|move[- ]in ready|turnkey|new (?:roof|windows|kitchen)/i;
   const ranked = (listings || []).map(l => {
     if (!l.price) return null;
-    if (l.price > p.budget * 1.2) return null;
+    if (!opts.ignoreBudget && l.price > p.budget * 1.2) return null;
     if (l.beds != null && p.beds >= 3 && l.beds < p.beds - 1) return null;
     let s = 100;
     const ai = p.top3.indexOf(l.areaId);
     s -= ai === -1 ? 30 : ai * 8;
-    s -= Math.abs(l.price - p.budget * 0.95) / p.budget * 40;
+    if (!opts.ignoreBudget) {
+      if (l.price > p.budget) s -= (l.price - p.budget) / p.budget * 80;       // over budget bleeds fast
+      else if (l.price < p.budget * 0.7) s -= (p.budget * 0.7 - l.price) / p.budget * 12; // deep-discount caution
+    }
     const d = (l.desc || "") + " " + (l.style || "");
-    if (p.prefs.water >= 3 && /water|river|lake|ocean|beach|kennebecasis/i.test(d)) s += 6;
-    if (p.prefs.space >= 3 && (/acre|acreage|private lot|large lot/i.test(d) || (l.sqft && l.sqft > 2200))) s += 4;
-    if (p.prefs.heritage >= 3 && /century|character|heritage|original (?:wood|trim|floors)/i.test(d)) s += 4;
-    if (p.prefs.heritage <= 1 && /new construction|newly built|brand new/i.test(d)) s += 3;
+    const w = prefs.water || 0, sp = prefs.space || 0, h = prefs.heritage || 0;
+    if (w >= 3.5) { if (W_STRONG.test(d)) s += 12; else if (W_WEAK.test(d)) s += 3; else s -= 14; }
+    else if (w >= 2) { if (W_STRONG.test(d)) s += 6; else if (W_WEAK.test(d)) s += 2; }
+    if (sp >= 3.5) { if (S_STRONG.test(d)) s += 10; else if (S_WEAK.test(d)) s += 2; else s -= 10; }
+    else if (sp >= 2.5) { if (S_STRONG.test(d)) s += 5; else if (S_WEAK.test(d)) s += 2; }
+    if (h >= 3) { if (/century|character|heritage|original (?:wood|trim|floors)/i.test(d)) s += 5; }
+    if (h <= 1 && /new construction|newly built|brand new/i.test(d)) s += 3;
+    const reno = prefs.reno == null ? 2 : prefs.reno;
+    if (reno <= 1) { if (NEG.test(d)) s -= 12; if (TURNKEY.test(d)) s += 5; }
+    else if (reno >= 3) { if (NEG.test(d)) s += 6; }
+    const g = prefs.garage || 0;
+    const hasGarage = l.garage === true || /garage/i.test(d);
+    if (g >= 2) { s += hasGarage ? 5 : -6; }
+    else if (g === 1 && hasGarage) s += 2;
+    const tp = prefs.typePref || "";
+    if (tp) {
+      const st = ((l.style || "") + " " + (l.type || "")).toLowerCase();
+      const isBung = /bungalow|ranch|one[- ](?:storey|story|level)/.test(st);
+      const isTwo = /two[- ](?:storey|story)|2[- ]storey|storey and a half|1\.5/.test(st);
+      if (tp === "bungalow") s += isBung ? 5 : (isTwo ? -4 : 0);
+      if (tp === "two-storey") s += isTwo ? 5 : (isBung ? -4 : 0);
+    }
     if (l.isNew) s += 3;
     if (!l.addressOk) s -= 5;
     return { ...l, _score: Math.round(s * 10) / 10 };

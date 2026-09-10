@@ -3,7 +3,7 @@
   "use strict";
   var Q = window.QUIZ, C = window.IRONCLAD || {};
   var $ = function (s, r) { return (r || document).querySelector(s); };
-  var state = { i: 0, dims: { pace: [], space: [], water: [], heritage: [], family: [] }, commutePref: 30, beds: 2, budget: 380000, answers: [] };
+  var state = { i: 0, dims: { pace: [], space: [], water: [], heritage: [], family: [] }, commutePref: 30, beds: 2, budget: 380000, reno: 2, garage: 0, typePref: "", answers: [] };
 
   function start() { state.i = 0; render(); }
 
@@ -31,7 +31,7 @@
   }
   function rebuild() {
     state.dims = { pace: [], space: [], water: [], heritage: [], family: [] };
-    state.commutePref = 30; state.beds = 2; state.budget = 380000;
+    state.commutePref = 30; state.beds = 2; state.budget = 380000; state.reno = 2; state.garage = 0; state.typePref = "";
     state.answers.forEach(function (j, qi) {
       var s = Q.questions[qi].a[j].s || {};
       for (var k in s) {
@@ -39,6 +39,9 @@
         else if (k === "commutePref") state.commutePref = s[k];
         else if (k === "beds") state.beds = s[k];
         else if (k === "budget") state.budget = s[k];
+        else if (k === "reno") state.reno = s[k];
+        else if (k === "garage") state.garage = s[k];
+        else if (k === "typePref") state.typePref = s[k];
       }
     });
   }
@@ -120,7 +123,7 @@
       fetch("/api/quiz-match", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
         email: email, firstName: $("#qName").value.trim(),
         areaId: state.result, top3: state.top3, budget: state.budget, beds: state.beds,
-        prefs: { water: avg(state.dims.water, 1.5), space: avg(state.dims.space, 2), heritage: avg(state.dims.heritage, 2) },
+        prefs: { water: avg(state.dims.water, 1.5), space: avg(state.dims.space, 2), heritage: avg(state.dims.heritage, 2), reno: state.reno, garage: state.garage, typePref: state.typePref },
         persona: (Q.personas[state.result] || {}).title || "", page: location.href, website: ""
       }) }).then(function (r) { return r.json(); }).then(function (j) {
         if (j.ok) { msg("Sent. Check your inbox — and maybe the promotions tab, email being email.", true); btn.textContent = "Sent"; }

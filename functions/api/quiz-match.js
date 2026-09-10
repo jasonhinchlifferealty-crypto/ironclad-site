@@ -24,11 +24,16 @@ export async function onRequestPost(context) {
 
   const listings = await cachedListings(env);
   const best = pickBest(listings, profile);
+  let dream = null;
+  const d0 = pickBest(listings, profile, { ignoreBudget: true });
+  if (d0 && d0.price > profile.budget * 1.2 && (!best || d0._score > best._score + 10)) dream = d0;
   const origin = new URL(request.url).origin;
   const unsub = await unsubLink(env, origin, email);
-  const html = renderMatchEmail(profile, best, origin, unsub);
-  const subject = best
-    ? "Your match: " + (best.street ? best.street + ", " + best.city : "a " + (best.type || "home").toLowerCase() + " in " + best.city)
+  const html = renderMatchEmail(profile, best, origin, unsub, dream);
+  const strong = best && best._score >= 88;
+  const subject = dream && best ? "Your match — and, honestly, your dream"
+    : dream && !best ? "Your dream home exists. The budget disagrees — for now"
+    : best ? (strong ? "Your match: " : "Your best available match: ") + (best.street ? best.street + ", " + best.city : "a " + (best.type || "home").toLowerCase() + " in " + best.city)
     : "Your match search is live";
   const sent = await sendEmail(env, email, subject, html);
   if (!sent.ok) return json({ error: "Couldn't send just now — try again in a minute." }, 502);
@@ -76,27 +81,57 @@ export async function cachedListings(env) {
   if (!env.LEADS) return [];
   try { const c = await env.LEADS.get("listings:cache", "json"); return (c && c.listings) || []; } catch { return []; }
 }
-export function pickBest(listings, p) {
+export function pickBest(listings, p, opts) {
+  opts = opts || {};
+  const prefs = p.prefs || {};
+  const W_STRONG = /waterfront|water\s?front|riverfront|river\s?front|lakefront|lake\s?front|oceanfront|deeded (?:water|beach)|water access|own(?:ed)? shoreline|on the (?:river|lake|water)|steps? (?:to|from) the (?:river|lake|beach|water)/i;
+  const W_WEAK = /river|lake|water|beach|ocean/i;
+  const S_STRONG = /\b\d+(?:\.\d+)?\s*acres?\b|acreage/i;
+  const S_WEAK = /large lot|private lot|big yard|double lot|oversized lot/i;
+  const NEG = /\bas[- ]is\b|handyman|needs (?:work|tlc)|\btlc\b|fixer|sold where is|estate sale/i;
+  const TURNKEY = /renovated|updated|move[- ]in ready|turnkey|new (?:roof|windows|kitchen)/i;
   const ranked = (listings || []).map(l => {
     if (!l.price) return null;
-    if (l.price > p.budget * 1.2) return null;
+    if (!opts.ignoreBudget && l.price > p.budget * 1.2) return null;
     if (l.beds != null && p.beds >= 3 && l.beds < p.beds - 1) return null;
     let s = 100;
     const ai = p.top3.indexOf(l.areaId);
     s -= ai === -1 ? 30 : ai * 8;
-    s -= Math.abs(l.price - p.budget * 0.95) / p.budget * 40;
+    if (!opts.ignoreBudget) {
+      if (l.price > p.budget) s -= (l.price - p.budget) / p.budget * 80;       // over budget bleeds fast
+      else if (l.price < p.budget * 0.7) s -= (p.budget * 0.7 - l.price) / p.budget * 12; // deep-discount caution
+    }
     const d = (l.desc || "") + " " + (l.style || "");
-    if (p.prefs.water >= 3 && /water|river|lake|ocean|beach|kennebecasis/i.test(d)) s += 6;
-    if (p.prefs.space >= 3 && (/acre|acreage|private lot|large lot/i.test(d) || (l.sqft && l.sqft > 2200))) s += 4;
-    if (p.prefs.heritage >= 3 && /century|character|heritage|original (?:wood|trim|floors)/i.test(d)) s += 4;
-    if (p.prefs.heritage <= 1 && /new construction|newly built|brand new/i.test(d)) s += 3;
+    const w = prefs.water || 0, sp = prefs.space || 0, h = prefs.heritage || 0;
+    if (w >= 3.5) { if (W_STRONG.test(d)) s += 12; else if (W_WEAK.test(d)) s += 3; else s -= 14; }
+    else if (w >= 2) { if (W_STRONG.test(d)) s += 6; else if (W_WEAK.test(d)) s += 2; }
+    if (sp >= 3.5) { if (S_STRONG.test(d)) s += 10; else if (S_WEAK.test(d)) s += 2; else s -= 10; }
+    else if (sp >= 2.5) { if (S_STRONG.test(d)) s += 5; else if (S_WEAK.test(d)) s += 2; }
+    if (h >= 3) { if (/century|character|heritage|original (?:wood|trim|floors)/i.test(d)) s += 5; }
+    if (h <= 1 && /new construction|newly built|brand new/i.test(d)) s += 3;
+    const reno = prefs.reno == null ? 2 : prefs.reno;
+    if (reno <= 1) { if (NEG.test(d)) s -= 12; if (TURNKEY.test(d)) s += 5; }
+    else if (reno >= 3) { if (NEG.test(d)) s += 6; }
+    const g = prefs.garage || 0;
+    const hasGarage = l.garage === true || /garage/i.test(d);
+    if (g >= 2) { s += hasGarage ? 5 : -6; }
+    else if (g === 1 && hasGarage) s += 2;
+    const tp = prefs.typePref || "";
+    if (tp) {
+      const st = ((l.style || "") + " " + (l.type || "")).toLowerCase();
+      const isBung = /bungalow|ranch|one[- ](?:storey|story|level)/.test(st);
+      const isTwo = /two[- ](?:storey|story)|2[- ]storey|storey and a half|1\.5/.test(st);
+      if (tp === "bungalow") s += isBung ? 5 : (isTwo ? -4 : 0);
+      if (tp === "two-storey") s += isTwo ? 5 : (isBung ? -4 : 0);
+    }
     if (l.isNew) s += 3;
     if (!l.addressOk) s -= 5;
     return { ...l, _score: Math.round(s * 10) / 10 };
   }).filter(Boolean).sort((a, b) => b._score - a._score || a.price - b.price);
   return ranked[0] || null;
 }
-export function renderMatchEmail(p, best, site, unsubUrl) {
+export function renderMatchEmail(p, best, site, unsubUrl, dream) {
+  const strong = best && best._score >= 88;
   const F = "Archivo,'Helvetica Neue',Arial,sans-serif";
   const name = p.firstName || "there";
   const money = n => "$" + Math.round(n).toLocaleString("en-CA");
@@ -131,9 +166,11 @@ export function renderMatchEmail(p, best, site, unsubUrl) {
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F3F2F2"><tr><td align="center" style="padding:24px 12px"><table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%">' +
     '<tr><td style="background:#201E1D;padding:16px 28px"><img src="' + site + '/assets/img/lockup-white.png" alt="Ironclad Realty Group" height="30" style="height:30px;width:auto;display:block"></td></tr>' +
     '<tr><td style="background:#EC3013;padding:26px 28px"><div style="font:600 11px/1 ' + F + ';letter-spacing:.14em;text-transform:uppercase;color:#fff;opacity:.85">The KV Personality Test</div>' +
-    '<div style="font:800 24px/1.15 ' + F + ';color:#fff;margin-top:8px">' + (best ? "Your match." : "Your search is live.") + '</div></td></tr>' +
+    '<div style="font:800 24px/1.15 ' + F + ';color:#fff;margin-top:8px">' + (dream ? (best ? "Your match — and your dream." : "Your dream exists. The budget disagrees.") : best ? (strong ? "Your match." : "Your best available match.") : "Your search is live.") + '</div></td></tr>' +
     '<tr><td style="background:#fff;padding:26px 28px 30px">' +
     '<p style="font:400 15px/1.55 ' + F + ';margin:0 0 16px">Hi ' + esc(name) + ' — matched from your answers against every current listing, Sussex to Saint John.</p>' +
+    (dream ? '<div style="font:600 11px/1 ' + F + ';letter-spacing:.14em;text-transform:uppercase;color:#EC3013;margin:0 0 10px">The one that fulfils every answer</div>' + miniCard(dream, site, F, "Above your stated range at " + money2(dream.price) + " — shown because it is what your answers actually describe. Budgets are strategies, not cages; if this is the life you meant, that is a conversation worth having.") + (best ? '<div style="font:600 11px/1 ' + F + ';letter-spacing:.14em;text-transform:uppercase;color:#6b6867;margin:22px 0 10px">The strongest fit inside your range</div>' : "") : "") +
+    (best && !strong ? '<p style="font:400 13px/1.55 ' + F + ';margin:0 0 16px;padding:10px 14px;border-left:3px solid #EC3013;background:#F3F2F2">Straight answer first: nothing on the market today nails your profile — a match is only ever as good as current inventory. This is the strongest fit from what is actually for sale right now. Inventory turns over weekly, your alert is live, and the moment something closer to your answers lists, it lands here first.</p>' : "") +
     core +
     '<p style="font:400 13px/1.55 ' + F + ';color:#6b6867;margin:18px 0 0">You will hear from us again only when a better match appears or this one sells — at most once a week. Retake the test any time your tastes shift: ' + site + '/quiz/</p>' +
     '</td></tr>' +
@@ -153,6 +190,17 @@ async function sendEmail(env, to, subject, html) {
     body: JSON.stringify({ from: env.SNAPSHOT_FROM || "Jason Hinchliffe <jason@ironcladrealty.ca>", to: [to], reply_to: "jason@ironcladrealty.ca", subject, html }) });
   return { ok: r.ok };
 }
+export function miniCard(l, site, F, note) {
+  const img = l.images && l.images.length ? '<img src="https://cdn.repliers.io/' + l.images[0] + '?class=large" alt="" style="width:100%;display:block">' : "";
+  return '<div style="border:1px solid #e2e0df">' + img + '<div style="padding:16px 18px;background:#fff">' +
+    '<div style="font:800 20px/1.1 ' + F + '">' + money2(l.price) + '</div>' +
+    '<div style="font:600 14px/1.3 ' + F + ';margin-top:3px">' + esc(l.addressOk && l.street ? l.street + ", " + l.city : (l.type || "Home") + " in " + l.city + " — address on request") + '</div>' +
+    '<div style="font:400 12px/1.4 ' + F + ';color:#6b6867;margin-top:2px">' + [l.beds != null ? l.beds + " bed" : null, l.baths != null ? l.baths + " bath" : null, l.sqft ? Math.round(l.sqft).toLocaleString("en-CA") + " sq ft" : null, l.type].filter(Boolean).join(" · ") + '</div>' +
+    (note ? '<p style="font:400 12px/1.5 ' + F + ';color:#201E1D;margin:10px 0 0;border-left:3px solid #EC3013;padding-left:10px">' + esc(note) + '</p>' : "") +
+    '<p style="font:400 10px/1.5 ' + F + ';color:#6b6867;margin:12px 0 0">Listed by ' + esc(l.office || "the listing brokerage") + (l.mls ? " · MLS® " + l.mls : "") + '</p>' +
+    '</div></div>';
+}
+export function money2(n) { return "$" + Math.round(n).toLocaleString("en-CA"); }
 function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function clampN(v, lo, hi, d) { const n = parseFloat(v); return isNaN(n) ? d : Math.min(hi, Math.max(lo, n)); }
 function json(o, s = 200) { return new Response(JSON.stringify(o), { status: s, headers: { "Content-Type": "application/json" } }); }

@@ -46,13 +46,31 @@ window.QUIZ = {
         { t: "Downsizing — less house, more life", s: { family: 1, beds: 2, space: 1 } },
         { t: "Us plus guests, hobbies, maybe a home office empire", s: { beds: 4, space: 2 } }
       ]},
+    { q: "A house that needs work is…",
+      a: [
+        { t: "A fresh canvas — hand me the sledgehammer", s: { reno: 4 } },
+        { t: "Fine, if it's paint-and-lighting work", s: { reno: 2 } },
+        { t: "Absolutely not. Turnkey or nothing", s: { reno: 0 } }
+      ]},
+    { q: "Pick a shape:",
+      a: [
+        { t: "One floor, no stairs, bungalow life", s: { typePref: "bungalow" } },
+        { t: "Two storeys — bedrooms live upstairs", s: { typePref: "two-storey" } },
+        { t: "The right house picks its own shape", s: { typePref: "" } }
+      ]},
+    { q: "The garage question:",
+      a: [
+        { t: "Non-negotiable. Preferably heated", s: { garage: 2 } },
+        { t: "Nice to have", s: { garage: 1 } },
+        { t: "Cars live outside. It's fine", s: { garage: 0 } }
+      ]},
     { q: "Water, honestly:",
       a: [
         { t: "I need to see it daily", s: { water: 4 } },
         { t: "A nice bonus, not a requirement", s: { water: 2 } },
         { t: "I'm a trees person", s: { water: 0, space: 2, pace: 2 } }
       ]},
-    { q: "Last one, and the bank is listening. The budget:",
+    { q: "Last one. The budget — don't worry, we won't tell the seller:",
       a: [
         { t: "Under $300K", s: { budget: 280000 } },
         { t: "$300K – $450K", s: { budget: 380000 } },

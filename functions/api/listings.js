@@ -93,6 +93,8 @@ async function build(env, origin) {
       cut: l.originalPrice && l.listPrice && num(l.listPrice) < num(l.originalPrice),
       images: (l.images || []).slice(0, 10),
       office: (l.office && (l.office.brokerageName || l.office.name)) || "",
+      garage: !!(d.garage || (d.numGarageSpaces && parseFloat(d.numGarageSpaces) > 0)),
+      yearBuilt: d.yearBuilt || null,
       desc: String(d.description || "").slice(0, 700)
     });
   }
