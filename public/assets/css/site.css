@@ -348,7 +348,8 @@ p:last-child { margin-bottom: 0; }
 .q-tease p { font-size:.9375rem; color:rgba(255,255,255,.8); line-height:1.55; }
 .q-fields { display:grid; grid-template-columns:1fr 1.4fr; gap:10px; margin-top:14px; }
 @media (max-width:640px){ .q-fields{grid-template-columns:1fr} }
-.q-tease input[type=text], .q-tease input[type=email] { min-height:48px; padding:10px 14px; border:0; font:inherit; }
+.q-tease input[type=text], .q-tease input[type=email] { min-height:48px; padding:10px 14px; border:0; font:inherit; color:var(--ink); background:#fff; caret-color:var(--ink); }
+.q-tease input::placeholder { color:#8f8c8b; }
 .q-consent { display:flex; gap:10px; align-items:flex-start; font-size:.75rem; color:rgba(255,255,255,.75); margin:12px 0 14px; }
 .q-consent input { margin-top:3px; }
 .q-tease .form-msg { color:#fff; }
