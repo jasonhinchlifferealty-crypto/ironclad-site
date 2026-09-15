@@ -19,12 +19,12 @@ window.QUIZ = {
         { t: "A tidy yard is a small joy", s: { space: 2 } },
         { t: "Give me land. The mower is my throne", s: { space: 4, pace: 3 } }
       ]},
-    { q: "The drive to Saint John should be…",
+    { q: "Your relationship with driving:",
       a: [
-        { t: "A rumour — I want to live in it", s: { commutePref: 5, pace: 0 } },
-        { t: "Fifteen minutes, tops", s: { commutePref: 18 } },
-        { t: "Under half an hour is fine", s: { commutePref: 30 } },
-        { t: "Irrelevant. I work from my kitchen", s: { commutePref: 60, pace: 3 } }
+        { t: "Cars are for other people — I walk to things", s: { commutePref: 5, pace: 0 } },
+        { t: "One good song and I've arrived", s: { commutePref: 18 } },
+        { t: "A podcast commute is thinking time", s: { commutePref: 30 } },
+        { t: "My commute is a hallway. I work from home", s: { commutePref: 60, pace: 3 } }
       ]},
     { q: "Perfect background noise:",
       a: [
@@ -39,12 +39,12 @@ window.QUIZ = {
         { t: "Nineties-solid — boring and bulletproof", s: { heritage: 2 } },
         { t: "New-build smell and straight walls", s: { heritage: 0 } }
       ]},
-    { q: "Who's moving in?",
+    { q: "Sunday dinner at your place looks like:",
       a: [
-        { t: "Just me / the two of us", s: { family: 0, beds: 2 } },
-        { t: "A growing crew — schools matter", s: { family: 4, beds: 3 } },
-        { t: "Downsizing — less house, more life", s: { family: 1, beds: 2, space: 1 } },
-        { t: "Us plus guests, hobbies, maybe a home office empire", s: { beds: 4, space: 2 } }
+        { t: "Two plates, good wine, zero negotiations", s: { family: 0, beds: 2 } },
+        { t: "Chaos, cleats in the hallway, someone else's kids too", s: { family: 4, beds: 3 } },
+        { t: "The good dishes, finally — the kids visit now", s: { family: 1, beds: 2, space: 1 } },
+        { t: "A long table, frequent guests, and a room that became a hobby", s: { beds: 4, space: 2 } }
       ]},
     { q: "A house that needs work is…",
       a: [
@@ -58,11 +58,11 @@ window.QUIZ = {
         { t: "Two storeys — bedrooms live upstairs", s: { typePref: "two-storey" } },
         { t: "The right house picks its own shape", s: { typePref: "" } }
       ]},
-    { q: "The garage question:",
+    { q: "Where does your vehicle sleep?",
       a: [
-        { t: "Non-negotiable. Preferably heated", s: { garage: 2 } },
-        { t: "Nice to have", s: { garage: 1 } },
-        { t: "Cars live outside. It's fine", s: { garage: 0 } }
+        { t: "In its own heated room, like the family member it is", s: { garage: 2 } },
+        { t: "A roof over it would be civilized", s: { garage: 1 } },
+        { t: "It's a vehicle. Outside. It's fine", s: { garage: 0 } }
       ]},
     { q: "Water, honestly:",
       a: [
