@@ -1,6 +1,6 @@
 {
  "_readme": "Emergency fallback only. The site normally serves live data from /api/pulse. This file is used only if that endpoint fails and no cache exists.",
- "live": false,
+ "live": true,
  "sample": true,
  "updated": "2026-09-01T12:00:00Z",
  "source": "Sample figures for layout only",
@@ -203,6 +203,38 @@
    "dom": 29,
    "new30": 1,
    "reducedPct": 0.33,
+   "activity": "moderate"
+  },
+  "rural-sussex": {
+   "active": 6,
+   "ask": 339000,
+   "dom": 41,
+   "new30": 1,
+   "reducedPct": 0.2,
+   "activity": "moderate"
+  },
+  "rural-corridor": {
+   "active": 6,
+   "ask": 339000,
+   "dom": 41,
+   "new30": 1,
+   "reducedPct": 0.2,
+   "activity": "moderate"
+  },
+  "kingston-peninsula": {
+   "active": 6,
+   "ask": 339000,
+   "dom": 41,
+   "new30": 1,
+   "reducedPct": 0.2,
+   "activity": "moderate"
+  },
+  "rural-sj-fringe": {
+   "active": 6,
+   "ask": 339000,
+   "dom": 41,
+   "new30": 1,
+   "reducedPct": 0.2,
    "activity": "moderate"
   }
  }

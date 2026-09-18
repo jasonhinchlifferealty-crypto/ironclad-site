@@ -46,8 +46,8 @@ async function build(env, origin) {
   const geoR = env.ASSETS ? await env.ASSETS.fetch(origin + "/data/areas.geojson") : await fetch(origin + "/data/areas.geojson");
   if (!geoR.ok) throw new Error("areas.geojson unavailable");
   const geo = await geoR.json();
-  const areas = geo.features.map(f => ({ id: f.properties.id, parent: f.properties.parent || null, rings: f.geometry.coordinates }));
-  const ordered = areas.slice().sort((a, b) => (a.parent ? 0 : 1) - (b.parent ? 0 : 1));
+  const areas = geo.features.map(f => ({ id: f.properties.id, parent: f.properties.parent || null, catchall: !!f.properties.catchall, rings: f.geometry.coordinates }));
+  const ordered = areas.slice().sort((a, b) => ((a.catchall ? 2 : (a.parent ? 0 : 1)) - (b.catchall ? 2 : (b.parent ? 0 : 1))));
 
   const raw = [];
   for (const city of CITIES) {

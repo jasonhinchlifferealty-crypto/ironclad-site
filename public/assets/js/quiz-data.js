@@ -99,7 +99,11 @@ window.QUIZ = {
     "north-end":           { pace: 1, space: 1, water: 2, heritage: 3, family: 2, commute: 6 },
     "uptown":              { pace: 0, space: 0, water: 2, heritage: 4, family: 1, commute: 0 },
     "east-side":           { pace: 1, space: 1, water: 1, heritage: 1, family: 3, commute: 8 },
-    "west-side":           { pace: 1, space: 1, water: 2, heritage: 3, family: 2, commute: 8 }
+    "west-side":           { pace: 1, space: 1, water: 2, heritage: 3, family: 2, commute: 8 },
+    "rural-sussex":        { pace: 4, space: 4, water: 2, heritage: 2, family: 2, commute: 60 },
+    "rural-corridor":      { pace: 4, space: 4, water: 2, heritage: 2, family: 2, commute: 38 },
+    "kingston-peninsula":  { pace: 4, space: 4, water: 4, heritage: 3, family: 2, commute: 40 },
+    "rural-sj-fringe":     { pace: 3, space: 3, water: 2, heritage: 2, family: 2, commute: 20 }
   },
 
   personas: {
@@ -121,6 +125,10 @@ window.QUIZ = {
     "north-end": { title: "The Value Hunter", body: "You see what the North End is becoming, not just what it's been: character housing, real prices, and a position minutes from everything. Buying here is a thesis, and you like your theses early." },
     "uptown": { title: "The Brick-and-Fog Romantic", body: "Century brick, harbour fog, restaurants you walk to and neighbours with stories. Uptown Saint John is the region's only true urban life, and you wouldn't trade a heated garage for it." },
     "east-side": { title: "The Sensible-Money Manager", body: "Solid streets, every amenity in ten minutes, and mortgages that leave room for a life. The East Side is where practicality lives — and you've done the math." },
-    "west-side": { title: "The Harbour-View Contrarian", body: "Views the fancy postal codes would kill for, at prices they don't understand. The West Side rewards people who judge a neighbourhood by walking it, not by hearsay — and you've always trusted your own eyes." }
+    "west-side": { title: "The Harbour-View Contrarian", body: "Views the fancy postal codes would kill for, at prices they don't understand. The West Side rewards people who judge a neighbourhood by walking it, not by hearsay — and you've always trusted your own eyes." },
+    "rural-sussex": { title: "The Acreage Sovereign", body: "Your property line is a philosophy. The hills and hollows beyond Sussex are where land is measured in acres, neighbours in kilometres, and evenings in woodsmoke — for people whose ambitions need outbuildings." },
+    "rural-corridor": { title: "The Backroad Strategist", body: "You want genuine country without exile: gravel under the tires, a real commute still on the table. The countryside between the corridor towns is the quiet compromise that isn't one." },
+    "kingston-peninsula": { title: "The Peninsula Devotee", body: "Water on three sides and a ferry in the daily arithmetic. The Kingston Peninsula is for people who decided the extra crossing is a feature — river views, rolling farms, and a pace the bridge traffic never finds." },
+    "rural-sj-fringe": { title: "The Twenty-Minute Homesteader", body: "City close, country quiet. The roads fringing Saint John give you the wood lot and the workshop while keeping the hospital, the airport, and a real grocery run inside twenty minutes." }
   }
 };

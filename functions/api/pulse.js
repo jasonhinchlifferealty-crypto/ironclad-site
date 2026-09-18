@@ -104,7 +104,7 @@ async function aggregate(env, origin, context) {
   }).filter(l => l.ask > 0);
 
   // Assign to neighbourhoods. Sub-areas (e.g. Gondola Point inside Quispamsis) claim first.
-  const ordered = areas.slice().sort((a, b) => (a.parent ? 0 : 1) - (b.parent ? 0 : 1));
+  const ordered = areas.slice().sort((a, b) => ((a.catchall ? 2 : (a.parent ? 0 : 1)) - (b.catchall ? 2 : (b.parent ? 0 : 1))));
   const buckets = {}; areas.forEach(a => buckets[a.id] = []);
   let regionAll = [];
   for (const l of parsed) {

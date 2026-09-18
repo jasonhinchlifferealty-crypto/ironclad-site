@@ -114,7 +114,8 @@
 
   function styleFor(id, hover) {
     var s = statsFor(id) || {}, sel = id === selectedId;
-    return { color: INK, weight: sel ? 3 : (hover ? 2 : 1), opacity: sel ? 1 : 0.7, fillColor: RED, fillOpacity: OPACITY[s.activity] || 0.3, dashArray: null };
+    var ca = f.properties && f.properties.catchall;
+    return { color: INK, weight: sel ? 3 : (hover ? 2 : 1), opacity: sel ? 1 : (ca ? 0.45 : 0.7), fillColor: RED, fillOpacity: ca ? Math.min(0.18, (OPACITY[s.activity] || 0.3) * 0.5) : (OPACITY[s.activity] || 0.3), dashArray: ca ? "6 5" : null };
   }
   function highlight(id, on) {
     var l = layers[id]; if (!l) return;

@@ -96,5 +96,34 @@ export async function onRequestGet({ request, env }) {
     out.steps.push({ step: "inv-multiunit-samples", samples });
   } catch (e) { out.steps.push({ step: "inv-census", error: String(e) }); }
 
+
+  // ---- Geo-search probe: can we query by geography instead of city names? ----
+  const BOX = [[[-66.30,45.20],[-65.30,45.20],[-65.30,45.85],[-66.30,45.85],[-66.30,45.20]]];
+  const KNOWN = ["Saint John","Quispamsis","Rothesay","Hampton","Grand Bay-Westfield","Sussex","Sussex Corner","Penobsquis","Apohaqui","Roachville","Norton","Bloomfield","Passekeag","Nauwigewauk"];
+  const cityReport = (j) => {
+    const cities = {}; (j.listings||[]).forEach(l => { const c = l.address && l.address.city; if (c) cities[c] = (cities[c]||0)+1; });
+    const outside = Object.keys(cities).filter(c => !KNOWN.includes(c));
+    return { count: j.count, pageCities: Object.keys(cities).length, outsideOurList: outside.slice(0, 25) };
+  };
+  try {
+    const qs = new URLSearchParams({ status: "A", type: "Sale", resultsPerPage: 100, map: JSON.stringify(BOX) });
+    const r = await fetch(`${REPLIERS}/listings?${qs}`, { headers: { "REPLIERS-API-KEY": env.REPLIERS_API_KEY || "" } });
+    const j = r.ok ? await r.json() : null;
+    out.steps.push({ step: "geo-GET-map-param", httpStatus: r.status, ...(j ? cityReport(j) : { body: (await r.text()).slice(0,200) }) });
+  } catch (e) { out.steps.push({ step: "geo-GET-map-param", error: String(e) }); }
+  try {
+    const r = await fetch(`${REPLIERS}/listings?status=A&type=Sale&resultsPerPage=100`, {
+      method: "POST", headers: { "REPLIERS-API-KEY": env.REPLIERS_API_KEY || "", "Content-Type": "application/json" },
+      body: JSON.stringify({ map: BOX }) });
+    const j = r.ok ? await r.json() : null;
+    out.steps.push({ step: "geo-POST-map-body", httpStatus: r.status, ...(j ? cityReport(j) : { body: (await r.text()).slice(0,200) }) });
+  } catch (e) { out.steps.push({ step: "geo-POST-map-body", error: String(e) }); }
+  try {
+    const qs = new URLSearchParams({ status: "A", type: "Sale", resultsPerPage: 100, lat: "45.55", long: "-65.80", radius: "45" });
+    const r = await fetch(`${REPLIERS}/listings?${qs}`, { headers: { "REPLIERS-API-KEY": env.REPLIERS_API_KEY || "" } });
+    const j = r.ok ? await r.json() : null;
+    out.steps.push({ step: "geo-GET-lat-long-radius", httpStatus: r.status, ...(j ? cityReport(j) : { body: (await r.text()).slice(0,200) }) });
+  } catch (e) { out.steps.push({ step: "geo-GET-lat-long-radius", error: String(e) }); }
+
   return new Response(JSON.stringify(out, null, 2), { headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
 }

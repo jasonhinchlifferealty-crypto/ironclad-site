@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://ironcladrealty.ca/</loc><changefreq>weekly</changefreq></url>
   <url><loc>https://ironcladrealty.ca/privacy.html</loc><changefreq>yearly</changefreq></url>
+  <url><loc>https://ironcladrealty.ca/quiz/</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://ironcladrealty.ca/homes-for-sale/</loc><changefreq>weekly</changefreq></url>
   <url><loc>https://ironcladrealty.ca/homes-for-sale/sussex/</loc><changefreq>daily</changefreq></url>
   <url><loc>https://ironcladrealty.ca/homes-for-sale/sussex-corner/</loc><changefreq>daily</changefreq></url>
@@ -22,5 +23,8 @@
   <url><loc>https://ironcladrealty.ca/homes-for-sale/uptown/</loc><changefreq>daily</changefreq></url>
   <url><loc>https://ironcladrealty.ca/homes-for-sale/east-side/</loc><changefreq>daily</changefreq></url>
   <url><loc>https://ironcladrealty.ca/homes-for-sale/west-side/</loc><changefreq>daily</changefreq></url>
-  <url><loc>https://ironcladrealty.ca/quiz/</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://ironcladrealty.ca/homes-for-sale/rural-sussex/</loc><changefreq>daily</changefreq></url>
+  <url><loc>https://ironcladrealty.ca/homes-for-sale/rural-corridor/</loc><changefreq>daily</changefreq></url>
+  <url><loc>https://ironcladrealty.ca/homes-for-sale/kingston-peninsula/</loc><changefreq>daily</changefreq></url>
+  <url><loc>https://ironcladrealty.ca/homes-for-sale/rural-sj-fringe/</loc><changefreq>daily</changefreq></url>
 </urlset>
