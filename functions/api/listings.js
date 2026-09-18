@@ -36,7 +36,7 @@ export async function onRequestGet(context) {
       if (!data) return json({ error: "listings unavailable: " + e.message }, 503);
     }
   }
-  const out = { updated: data.updated, count: 0, listings: [] };
+  const out = { updated: data.updated, fetchMode: data.fetchMode || "unknown", count: 0, listings: [] };
   out.listings = area ? data.listings.filter(l => l.areaId === area) : data.listings;
   out.count = out.listings.length;
   return json(out);

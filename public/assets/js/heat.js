@@ -125,10 +125,38 @@
     var lg = document.getElementById("heatLegend"); if (lg) lg.hidden = true;
   }
 
+  // ---- Always-on listing dots: every cached listing as a small ink square. ----
+  var dots = { canvas: null };
+  function renderDots() {
+    var map = state.map; if (!map || !dots.canvas || !state.data) return;
+    var size = map.getSize(), cv = dots.canvas;
+    L.DomUtil.setPosition(cv, map.containerPointToLayerPoint([0, 0]));
+    cv.width = size.x; cv.height = size.y;
+    var ctx = cv.getContext("2d");
+    ctx.clearRect(0, 0, size.x, size.y);
+    ctx.fillStyle = "rgba(32,30,29,0.78)"; // Ironclad ink
+    var n = 0;
+    state.data.forEach(function (l) {
+      if (l.lat == null || l.lng == null) return;
+      var p = map.latLngToContainerPoint([l.lat, l.lng]);
+      if (p.x < -6 || p.y < -6 || p.x > size.x + 6 || p.y > size.y + 6) return;
+      ctx.fillRect(Math.round(p.x) - 1.5, Math.round(p.y) - 1.5, 3, 3);
+      n++;
+    });
+    window.__dotsDbg = { drawn: n };
+  }
   window.IroncladHeat = {
     attach: function (map) {
       if (!C.listingsEnabled || !window.L) return;
       state.map = map;
+      map.createPane("dotsPane");
+      var dp = map.getPane("dotsPane");
+      dp.style.zIndex = 450; // above area fills, below markers — dots stay visible everywhere
+      dp.style.pointerEvents = "none";
+      dots.canvas = document.createElement("canvas");
+      dots.canvas.style.position = "absolute";
+      dp.appendChild(dots.canvas);
+      map.whenReady(function () { ensureData().then(renderDots); });
       map.createPane("heatPane");
       var pane = map.getPane("heatPane");
       pane.style.zIndex = 350;
@@ -153,8 +181,8 @@
         if (!m) { clearField(); return; }
         ensureData().then(scheduleRender);
       });
-      map.on("moveend zoomend resize", function () { if (state.metric) scheduleRender(); else if (state.canvas) L.DomUtil.setPosition(state.canvas, map.containerPointToLayerPoint([0, 0])); });
-      map.on("move", function () { if (state.metric) L.DomUtil.setPosition(state.canvas, map.containerPointToLayerPoint([0, 0])); });
+      map.on("moveend zoomend resize", function () { renderDots(); if (state.metric) scheduleRender(); else if (state.canvas) L.DomUtil.setPosition(state.canvas, map.containerPointToLayerPoint([0, 0])); });
+      map.on("move", function () { if (dots.canvas) L.DomUtil.setPosition(dots.canvas, map.containerPointToLayerPoint([0, 0])); if (state.metric) L.DomUtil.setPosition(state.canvas, map.containerPointToLayerPoint([0, 0])); });
     }
   };
   function ensureData() {
