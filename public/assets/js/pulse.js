@@ -96,10 +96,12 @@
     map.zoomControl.setPosition("topright");
 
     (areas.features || []).forEach(function (ft) { if (ft.properties && ft.properties.catchall) CATCHALL[ft.properties.id] = true; });
+    var catchLayers = [], townLayers = [];
     var geo = L.geoJSON(areas, {
       style: function (f) { return styleFor(f.properties.id, false); },
       onEachFeature: function (f, layer) {
         var id = f.properties.id; layers[id] = layer;
+        (f.properties.catchall ? catchLayers : townLayers).push(layer);
         var s = statsFor(id) || {};
         layer.bindTooltip(f.properties.name + " · " + moneyK(s.ask) + " ask", { sticky: true, direction: "top", opacity: 1 });
         layer.on("mouseover", function () { highlight(id, true); });
@@ -107,7 +109,16 @@
         layer.on("click", function () { select(id, false); });
       }
     }).addTo(map);
+    window.__pulseMap = map; // test/debug handle
     var home = geo.getBounds(); map.fitBounds(home, { padding: [24, 24] });
+    // AFTER the first view exists (fitBounds): layers are actually mounted now.
+    // (This Leaflet defers child onAdd until the map has a view — paths don't exist before.)
+    // Countryside zones never intercept map clicks — towns stay clickable everywhere;
+    // zones are selected from the list (and quiz links); outline still draws on selection.
+    map.whenReady(function () {
+      catchLayers.forEach(function (l) { if (l._path) l._path.style.pointerEvents = "none"; });
+      townLayers.forEach(function (l) { if (l.bringToFront) l.bringToFront(); });
+    });
     map.on("click", function (e) { /* clicks on empty map do nothing; back button clears */ });
     map.on("zoomstart movestart", function () { $("#mapHint").classList.add("hidden"); });
     setTimeout(function () { map.invalidateSize(); map.fitBounds(home, { padding: [24, 24] }); }, 250);

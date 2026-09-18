@@ -7,13 +7,13 @@
 (function () {
   "use strict";
   var C = window.IRONCLAD || {};
-  var SIGMA = 46;            // kernel radius in px — visual smoothness, zoom-independent
+  var SIGMA = 30;            // kernel radius in px — visual smoothness, zoom-independent
   var STEP = 5;              // sample every N px, canvas-smoothed upscale
   var CONF_FULL = 2.2;       // effective listings for full opacity (value metrics)
-  var CONF_MIN = 0.35;       // below this, draw nothing
+  var CONF_MIN = 0.55;       // below this, draw nothing
   var METRICS = {
     price: { label: "Price", legend: ["cheaper", "pricier"], v: function (l) { return l.price; } },
-    dom:   { label: "Days listed", legend: ["faster", "slower"], v: function (l) { return l.dom; } },
+    dom:   { label: "Days listed", legend: ["slower", "faster"], invert: true, v: function (l) { return l.dom; } }, // fast-selling = hot = red
     cuts:  { label: "Price cuts", legend: ["few cuts", "many cuts"], v: function (l) { return l.cut ? 1 : 0; } },
     count: { label: "Homes", legend: ["sparse", "dense"], v: null } // density itself
   };
@@ -87,6 +87,7 @@
       var cf = conf[i3];
       if (cf < CONF_MIN) continue;
       var t = ((M.v ? val[i3] : cf) - lo) / (hi - lo);
+      if (M.invert) t = 1 - t;
       var rgb = ramp(t);
       var a = Math.min(1, cf / CONF_FULL) * 0.55;
       img.data[i3 * 4] = rgb[0]; img.data[i3 * 4 + 1] = rgb[1]; img.data[i3 * 4 + 2] = rgb[2];
@@ -95,6 +96,25 @@
     octx.putImageData(img, 0, 0);
     ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
     ctx.drawImage(off, 0, 0, size.x, size.y);
+    // clip to the service area: feathered mask from every area polygon — heat never paints beyond the patch
+    if (state.rings && state.rings.length) {
+      var mk = document.createElement("canvas"); mk.width = size.x; mk.height = size.y;
+      var mctx = mk.getContext("2d");
+      mctx.filter = "blur(14px)";
+      mctx.fillStyle = "#fff";
+      mctx.beginPath();
+      state.rings.forEach(function (ring) {
+        ring.forEach(function (pt, i) {
+          var p = map.latLngToContainerPoint([pt[1], pt[0]]);
+          if (i === 0) mctx.moveTo(p.x, p.y); else mctx.lineTo(p.x, p.y);
+        });
+        mctx.closePath();
+      });
+      mctx.fill();
+      ctx.globalCompositeOperation = "destination-in";
+      ctx.drawImage(mk, 0, 0);
+      ctx.globalCompositeOperation = "source-over";
+    }
     var lg = document.getElementById("heatLegend");
     if (lg) { lg.hidden = false; document.getElementById("heatLegendLo").textContent = M.legend[0]; document.getElementById("heatLegendHi").textContent = M.legend[1]; }
     window.__heatDbg = { pts: pts.length, cols: cols, rows: rows, confident: samples.length };
@@ -138,9 +158,18 @@
     }
   };
   function ensureData() {
-    if (state.data) return Promise.resolve();
-    return fetch("/api/listings").then(function (r) { return r.json(); })
-      .then(function (j) { state.data = j.listings || []; })
-      .catch(function () { state.data = []; });
+    if (state.data && state.rings) return Promise.resolve();
+    return Promise.all([
+      fetch("/api/listings").then(function (r) { return r.json(); }).catch(function () { return { listings: [] }; }),
+      fetch("/data/areas.geojson").then(function (r) { return r.json(); }).catch(function () { return { features: [] }; })
+    ]).then(function (res) {
+      state.data = res[0].listings || [];
+      state.rings = [];
+      (res[1].features || []).forEach(function (f) {
+        var g = f.geometry; if (!g) return;
+        var polys = g.type === "Polygon" ? [g.coordinates] : (g.type === "MultiPolygon" ? g.coordinates : []);
+        polys.forEach(function (p) { if (p[0]) state.rings.push(p[0]); });
+      });
+    });
   }
 })();
