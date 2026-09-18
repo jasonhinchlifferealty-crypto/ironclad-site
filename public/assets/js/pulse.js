@@ -89,11 +89,13 @@
   function initMap() {
     if (!window.L) return;
     map = L.map("map", { zoomControl: true, scrollWheelZoom: false, zoomSnap: 0.2, attributionControl: true, minZoom: 6.5 });
+    if (window.IroncladHeat) window.IroncladHeat.attach(map);
     map.attributionControl.setPrefix("Leaflet");
     L.tileLayer(C.tileUrl, { attribution: C.tileAttribution, maxZoom: 19 }).addTo(map);
     if (C.tileLabelsUrl) L.tileLayer(C.tileLabelsUrl, { maxZoom: 19, pane: "shadowPane" }).addTo(map);
     map.zoomControl.setPosition("topright");
 
+    (areas.features || []).forEach(function (ft) { if (ft.properties && ft.properties.catchall) CATCHALL[ft.properties.id] = true; });
     var geo = L.geoJSON(areas, {
       style: function (f) { return styleFor(f.properties.id, false); },
       onEachFeature: function (f, layer) {
@@ -112,10 +114,16 @@
     window.addEventListener("resize", function () { map.invalidateSize(); });
   }
 
+  var CATCHALL = {};
   function styleFor(id, hover) {
     var s = statsFor(id) || {}, sel = id === selectedId;
-    var ca = f.properties && f.properties.catchall;
-    return { color: INK, weight: sel ? 3 : (hover ? 2 : 1), opacity: sel ? 1 : (ca ? 0.45 : 0.7), fillColor: RED, fillOpacity: ca ? Math.min(0.18, (OPACITY[s.activity] || 0.3) * 0.5) : (OPACITY[s.activity] || 0.3), dashArray: ca ? "6 5" : null };
+    var ca = CATCHALL[id];
+    if (ca) {
+      // Countryside zones stay invisible until asked: outline appears on hover/selection only.
+      // fillOpacity 0 keeps the area clickable (SVG hit-testing counts painted fill regardless of opacity).
+      return { color: INK, weight: sel ? 2.5 : 1.5, opacity: sel ? 0.9 : (hover ? 0.55 : 0), fillColor: RED, fillOpacity: sel ? 0.06 : (hover ? 0.05 : 0), dashArray: "6 5" };
+    }
+    return { color: INK, weight: sel ? 3 : (hover ? 2 : 1), opacity: sel ? 1 : 0.7, fillColor: RED, fillOpacity: OPACITY[s.activity] || 0.3, dashArray: null };
   }
   function highlight(id, on) {
     var l = layers[id]; if (!l) return;

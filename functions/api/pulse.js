@@ -71,20 +71,35 @@ async function aggregate(env, origin, context) {
   const areas = geo.features.map(f => ({
     id: f.properties.id, name: f.properties.name, group: f.properties.group,
     order: f.properties.order || 0, parent: f.properties.parent || null,
+    catchall: !!f.properties.catchall,
     rings: f.geometry.coordinates
   }));
 
-  // Pull all actives for the coverage towns (paginated, defensively capped)
+  // Pull all actives for the coverage area — geographic query (diag-proven), city-list fallback
   const listings = [];
-  for (const city of CITIES) {
-    for (let page = 1; page <= 5; page++) {
-      const qs = new URLSearchParams({ status: "A", city, resultsPerPage: 100, pageNum: page });
+  try {
+    for (let page = 1; page <= 10; page++) {
+      const qs = new URLSearchParams({ status: "A", map: JSON.stringify(COVERAGE), resultsPerPage: 100, pageNum: page });
       const r = await fetch(`${REPLIERS}/listings?${qs}`, { headers: { "REPLIERS-API-KEY": env.REPLIERS_API_KEY } });
-      if (!r.ok) throw new Error(`Repliers ${r.status} for ${city}`);
+      if (!r.ok) throw new Error(`geo fetch ${r.status}`);
       const j = await r.json();
       const batch = j.listings || [];
       listings.push(...batch);
       if (batch.length < 100) break;
+    }
+    if (!listings.length) throw new Error("geo fetch returned zero");
+  } catch (geoErr) {
+    listings.length = 0;
+    for (const city of CITIES) {
+      for (let page = 1; page <= 5; page++) {
+        const qs = new URLSearchParams({ status: "A", city, resultsPerPage: 100, pageNum: page });
+        const r = await fetch(`${REPLIERS}/listings?${qs}`, { headers: { "REPLIERS-API-KEY": env.REPLIERS_API_KEY } });
+        if (!r.ok) throw new Error(`Repliers ${r.status} for ${city}`);
+        const j = await r.json();
+        const batch = j.listings || [];
+        listings.push(...batch);
+        if (batch.length < 100) break;
+      }
     }
   }
 

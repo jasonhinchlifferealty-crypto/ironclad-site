@@ -357,3 +357,12 @@ p:last-child { margin-bottom: 0; }
 .q-consent { display:flex; gap:10px; align-items:flex-start; font-size:.75rem; color:rgba(255,255,255,.75); margin:12px 0 14px; }
 .q-consent input { margin-top:3px; }
 .q-tease .form-msg { color:#fff; }
+
+/* ---------- Heat control ---------- */
+.heat-ctl { position:absolute; z-index:650; top:14px; left:14px; background:#fff; border:1px solid var(--line); padding:8px 10px; display:flex; gap:6px; align-items:center; flex-wrap:wrap; max-width:calc(100% - 90px); }
+.heat-ctl-label { font-weight:600; font-size:.625rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-right:2px; }
+.heat-ctl button { border:1px solid var(--ink); background:none; font:inherit; font-size:.6875rem; font-weight:600; padding:5px 9px; cursor:pointer; }
+.heat-ctl button.on { background:var(--ink); color:#fff; }
+.heat-legend { display:inline-flex; align-items:center; gap:5px; font-size:.625rem; color:var(--muted); margin-left:4px; }
+.heat-legend i { width:14px; height:10px; display:inline-block; }
+@media (max-width:860px){ .heat-ctl { top:8px; left:8px; padding:6px 8px; } }

@@ -10,6 +10,7 @@
 
 const REPLIERS = "https://api.repliers.io";
 const CITIES = ["Saint John", "Quispamsis", "Rothesay", "Hampton", "Grand Bay-Westfield", "Sussex", "Sussex Corner", "Penobsquis", "Apohaqui", "Roachville", "Norton", "Bloomfield", "Passekeag", "Nauwigewauk"];
+const COVERAGE = [[[-66.30,45.20],[-65.30,45.20],[-65.30,45.85],[-66.30,45.85],[-66.30,45.20]]]; // geo-fetch box, diag-proven Sep 2026
 const CACHE_KEY = "listings:cache";
 const FRESH_MS = 30 * 60 * 1000;
 
@@ -50,15 +51,31 @@ async function build(env, origin) {
   const ordered = areas.slice().sort((a, b) => ((a.catchall ? 2 : (a.parent ? 0 : 1)) - (b.catchall ? 2 : (b.parent ? 0 : 1))));
 
   const raw = [];
-  for (const city of CITIES) {
-    for (let page = 1; page <= 5; page++) {
-      const qs = new URLSearchParams({ status: "A", city, resultsPerPage: 100, pageNum: page });
+  let fetchMode = "geo";
+  try {
+    for (let page = 1; page <= 10; page++) {
+      const qs = new URLSearchParams({ status: "A", map: JSON.stringify(COVERAGE), resultsPerPage: 100, pageNum: page });
       const r = await fetch(`${REPLIERS}/listings?${qs}`, { headers: { "REPLIERS-API-KEY": env.REPLIERS_API_KEY } });
-      if (!r.ok) throw new Error(`Repliers ${r.status} (${city})`);
+      if (!r.ok) throw new Error(`geo fetch ${r.status}`);
       const j = await r.json();
       const batch = j.listings || [];
       raw.push(...batch);
       if (batch.length < 100) break;
+    }
+    if (!raw.length) throw new Error("geo fetch returned zero");
+  } catch (geoErr) {
+    fetchMode = "cities-fallback (" + geoErr.message + ")";
+    raw.length = 0;
+    for (const city of CITIES) {
+      for (let page = 1; page <= 5; page++) {
+        const qs = new URLSearchParams({ status: "A", city, resultsPerPage: 100, pageNum: page });
+        const r = await fetch(`${REPLIERS}/listings?${qs}`, { headers: { "REPLIERS-API-KEY": env.REPLIERS_API_KEY } });
+        if (!r.ok) throw new Error(`Repliers ${r.status} (${city})`);
+        const j = await r.json();
+        const batch = j.listings || [];
+        raw.push(...batch);
+        if (batch.length < 100) break;
+      }
     }
   }
 
@@ -90,6 +107,7 @@ async function build(env, origin) {
       addressOk,
       areaId,
       isNew: listDate ? (now - listDate) <= 7 * 86400000 : false,
+      dom: listDate ? Math.max(0, Math.round((now - listDate) / 86400000)) : null,
       cut: l.originalPrice && l.listPrice && num(l.listPrice) < num(l.originalPrice),
       images: (l.images || []).slice(0, 10),
       office: (l.office && (l.office.brokerageName || l.office.name)) || "",
@@ -99,7 +117,7 @@ async function build(env, origin) {
     });
   }
   listings.sort((a, b) => (b.isNew - a.isNew) || ((a.price || 9e9) - (b.price || 9e9)));
-  return { updated: new Date().toISOString(), listings };
+  return { updated: new Date().toISOString(), fetchMode, listings };
 }
 
 function inPoly(x, y, rings) {
