@@ -134,16 +134,23 @@
     cv.width = size.x; cv.height = size.y;
     var ctx = cv.getContext("2d");
     ctx.clearRect(0, 0, size.x, size.y);
-    ctx.fillStyle = "rgba(32,30,29,0.78)"; // Ironclad ink
+    var z = map.getZoom();
+    var d = z >= 13 ? 9 : z >= 12 ? 7 : z >= 10.5 ? 5 : 4; // dot size grows as you approach
     var n = 0;
+    dots.hit = [];
     state.data.forEach(function (l) {
       if (l.lat == null || l.lng == null) return;
       var p = map.latLngToContainerPoint([l.lat, l.lng]);
-      if (p.x < -6 || p.y < -6 || p.x > size.x + 6 || p.y > size.y + 6) return;
-      ctx.fillRect(Math.round(p.x) - 1.5, Math.round(p.y) - 1.5, 3, 3);
+      if (p.x < -10 || p.y < -10 || p.x > size.x + 10 || p.y > size.y + 10) return;
+      var x = Math.round(p.x), y = Math.round(p.y), h = Math.floor(d / 2);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(x - h - 1, y - h - 1, d + 2, d + 2);         // white ring — same species as the pins
+      ctx.fillStyle = "#EC3013";
+      ctx.fillRect(x - h, y - h, d, d);                          // Ironclad red
+      dots.hit.push({ x: x, y: y, l: l });
       n++;
     });
-    window.__dotsDbg = { drawn: n };
+    window.__dotsDbg = { drawn: n, size: d };
   }
   window.IroncladHeat = {
     attach: function (map) {
@@ -157,6 +164,29 @@
       dots.canvas.style.position = "absolute";
       dp.appendChild(dots.canvas);
       map.whenReady(function () { ensureData().then(renderDots); });
+      map.on("click", function (e) {
+        if (map.getZoom() < 11 || !dots.hit || !dots.hit.length) return;
+        var p = e.containerPoint, best = null, bd = 12 * 12;
+        dots.hit.forEach(function (h) {
+          var dx = h.x - p.x, dy = h.y - p.y, dd = dx * dx + dy * dy;
+          if (dd < bd) { bd = dd; best = h; }
+        });
+        if (!best) return;
+        var l = best.l;
+        var img = l.images && l.images.length ? '<img src="' + (C.listingImageBase || "https://cdn.repliers.io/") + l.images[0] + '?class=small" alt="" style="width:100%;height:110px;object-fit:cover;display:block">' : "";
+        var addr = l.addressOk && l.street ? l.street + ", " + l.city : (l.type || "Home") + " in " + (l.city || "the Valley") + " — address on request";
+        var meta = [l.beds != null ? l.beds + " bed" : null, l.baths != null ? l.baths + " bath" : null, l.type].filter(Boolean).join(" · ");
+        L.popup({ maxWidth: 240, closeButton: true })
+          .setLatLng([l.lat, l.lng])
+          .setContent('<div style="font-family:inherit;min-width:200px">' + img +
+            '<div style="padding:10px 12px">' +
+            '<div style="font-weight:800;font-size:17px">$' + Math.round(l.price).toLocaleString("en-CA") + '</div>' +
+            '<div style="font-weight:600;font-size:13px;margin-top:2px">' + addr + '</div>' +
+            (meta ? '<div style="font-size:11px;color:#6b6867;margin-top:2px">' + meta + '</div>' : "") +
+            (l.mls ? '<div style="font-size:10px;color:#6b6867;margin-top:6px">MLS® ' + l.mls + '</div>' : "") +
+            '</div></div>')
+          .openOn(map);
+      });
       map.createPane("heatPane");
       var pane = map.getPane("heatPane");
       pane.style.zIndex = 350;
@@ -181,8 +211,10 @@
         if (!m) { clearField(); return; }
         ensureData().then(scheduleRender);
       });
-      map.on("moveend zoomend resize", function () { renderDots(); if (state.metric) scheduleRender(); else if (state.canvas) L.DomUtil.setPosition(state.canvas, map.containerPointToLayerPoint([0, 0])); });
-      map.on("move", function () { if (dots.canvas) L.DomUtil.setPosition(dots.canvas, map.containerPointToLayerPoint([0, 0])); if (state.metric) L.DomUtil.setPosition(state.canvas, map.containerPointToLayerPoint([0, 0])); });
+      // Canvases are positioned in LAYER coordinates at draw time and ride the map pane
+      // during pans/zooms exactly like tiles; redraw snaps them at moveend. Repositioning
+      // mid-move glued them to the screen and made the map slide under the dots — the bug.
+      map.on("moveend zoomend resize", function () { renderDots(); if (state.metric) scheduleRender(); });
     }
   };
   function ensureData() {
