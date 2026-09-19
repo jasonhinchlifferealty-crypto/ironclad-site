@@ -29,6 +29,7 @@
     var M = METRICS[state.metric];
     var size = map.getSize();
     var cv = state.canvas;
+    state.tl = map.containerPointToLatLng([0, 0]);
     L.DomUtil.setPosition(cv, map.containerPointToLayerPoint([0, 0]));
     cv.width = size.x; cv.height = size.y;
     var ctx = cv.getContext("2d");
@@ -130,6 +131,7 @@
   function renderDots() {
     var map = state.map; if (!map || !dots.canvas || !state.data) return;
     var size = map.getSize(), cv = dots.canvas;
+    dots.tl = map.containerPointToLatLng([0, 0]);
     L.DomUtil.setPosition(cv, map.containerPointToLayerPoint([0, 0]));
     cv.width = size.x; cv.height = size.y;
     var ctx = cv.getContext("2d");
@@ -215,6 +217,12 @@
       // during pans/zooms exactly like tiles; redraw snaps them at moveend. Repositioning
       // mid-move glued them to the screen and made the map slide under the dots — the bug.
       map.on("moveend zoomend resize", function () { renderDots(); if (state.metric) scheduleRender(); });
+      map.on("zoomanim", function (e) {
+        if (!map._latLngToNewLayerPoint) return; // older builds: keep snap behaviour
+        var scale = map.getZoomScale(e.zoom);
+        if (dots.canvas && dots.tl) L.DomUtil.setTransform(dots.canvas, map._latLngToNewLayerPoint(dots.tl, e.zoom, e.center), scale);
+        if (state.metric && state.canvas && state.tl) L.DomUtil.setTransform(state.canvas, map._latLngToNewLayerPoint(state.tl, e.zoom, e.center), scale);
+      });
     }
   };
   function ensureData() {
