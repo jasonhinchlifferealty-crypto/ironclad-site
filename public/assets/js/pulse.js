@@ -256,6 +256,7 @@
     var btn = $("#leadSubmit"), msg = $("#leadMsg"), data = serialize(leadForm);
     data.source = data.type === "seller" ? "Heatmap-Lead" : "Buyer-Lead"; data.page = location.href;
     btn.disabled = true; btn.textContent = "Sending…";
+    if (window.ironcladConvert) window.ironcladConvert();
     post("/api/lead", data).then(function () {
       leadForm.reset();
       showMsg(msg, data.type === "seller"
@@ -286,6 +287,7 @@
     if (!pulseForm.checkValidity()) { pulseForm.reportValidity(); return; }
     var msg = $("#pulseMsg"), data = serialize(pulseForm); data.type = "subscriber"; data.source = "KV-Pulse-Signup"; data.page = location.href;
     var btn = pulseForm.querySelector("button"); btn.disabled = true;
+    if (window.ironcladConvert) window.ironcladConvert();
     post("/api/lead", data).then(function () { pulseForm.reset(); showMsg(msg, "Subscribed. First Pulse arrives on the 1st.", true); btn.disabled = false; })
       .catch(function (err) { showMsg(msg, "That didn't go through: " + err.message, false); btn.disabled = false; });
   });

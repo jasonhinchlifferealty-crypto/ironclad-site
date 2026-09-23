@@ -120,6 +120,7 @@
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return msg("A real email gets a real match.", false);
       if (!consent) return msg("The checkbox is how we're allowed to email you — Canadian law, good law.", false);
       var btn = $("#qSubmit"); btn.disabled = true;
+      if (window.ironcladConvert) window.ironcladConvert();
       fetch("/api/quiz-match", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
         email: email, firstName: $("#qName").value.trim(),
         areaId: state.result, top3: state.top3, budget: state.budget, beds: state.beds,
