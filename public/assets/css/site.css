@@ -366,3 +366,13 @@ p:last-child { margin-bottom: 0; }
 .heat-legend { display:inline-flex; align-items:center; gap:5px; font-size:.625rem; color:var(--muted); margin-left:4px; }
 .heat-legend i { width:14px; height:10px; display:inline-block; }
 @media (max-width:860px){ .heat-ctl { top:8px; left:8px; padding:6px 8px; } }
+
+/* ---------- Crawlable market facts (AI-readable layer) ---------- */
+.area-facts { max-width:640px; margin:36px auto 0; padding:0 20px 28px; }
+.area-facts h2 { font-size:1.05rem; letter-spacing:.02em; margin:0 0 10px; }
+.area-facts p { font-size:.9rem; line-height:1.6; color:var(--ink); margin:0 0 14px; }
+.area-facts table { width:100%; border-collapse:collapse; font-size:.85rem; }
+.area-facts caption { text-align:left; font-weight:600; font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); padding-bottom:6px; }
+.area-facts th, .area-facts td { text-align:left; padding:7px 10px; border:1px solid var(--line); }
+.area-facts th { font-weight:600; width:55%; }
+.area-facts-src { font-size:.72rem !important; color:var(--muted) !important; margin-top:10px !important; }

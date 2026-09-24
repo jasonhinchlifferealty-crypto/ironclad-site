@@ -1,3 +1,20 @@
+# ironcladrealty.ca — all crawlers welcome, AI answer engines explicitly so.
 User-agent: *
 Allow: /
+
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-Web
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: CCBot
+Allow: /
+
 Sitemap: https://ironcladrealty.ca/sitemap.xml
