@@ -29,8 +29,8 @@ window.IRONCLAD = {
   listingImageBase: "https://cdn.repliers.io/",
 
   pulseUrl: "/api/pulse",
-  adsId: "AW-18461070607",
-  adsLabel: "WULICI3s6IIdEI-q9uJE",
+  adsId: "AW-18470891080",
+  adsLabel: "NX77COqq84IdEMjczedE",
   pulseFallbackUrl: "/data/pulse.json",
   areasUrl: "/data/areas.geojson"
 };
