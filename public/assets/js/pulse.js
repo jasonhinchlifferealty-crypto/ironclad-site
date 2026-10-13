@@ -88,7 +88,7 @@
   /* ---------- map ---------- */
   function initMap() {
     if (!window.L) return;
-    map = L.map("map", { zoomControl: true, scrollWheelZoom: false, zoomSnap: 0.2, attributionControl: true, minZoom: 6.5 });
+    map = L.map("map", { zoomControl: true, scrollWheelZoom: true, zoomSnap: 0.2, attributionControl: true, minZoom: 6.5 });
     if (window.IroncladHeat) window.IroncladHeat.attach(map);
     map.attributionControl.setPrefix("Leaflet");
     L.tileLayer(C.tileUrl, { attribution: C.tileAttribution, maxZoom: 19 }).addTo(map);
