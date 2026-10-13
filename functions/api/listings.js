@@ -10,7 +10,7 @@
 
 const REPLIERS = "https://api.repliers.io";
 const CITIES = ["Saint John", "Quispamsis", "Rothesay", "Hampton", "Grand Bay-Westfield", "Sussex", "Sussex Corner", "Penobsquis", "Apohaqui", "Roachville", "Norton", "Bloomfield", "Passekeag", "Nauwigewauk"];
-const COVERAGE = [[[-66.30,45.20],[-65.30,45.20],[-65.30,45.85],[-66.30,45.85],[-66.30,45.20]]]; // geo-fetch box, diag-proven Sep 2026
+const COVERAGE = [[[-66.47,45.03],[-65.13,45.03],[-65.13,45.97],[-66.47,45.97],[-66.47,45.03]]]; // geo-fetch box, recomputed from authoritative areas Oct 2026
 const CACHE_KEY = "listings:cache";
 const FRESH_MS = 30 * 60 * 1000;
 

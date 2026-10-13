@@ -59,6 +59,8 @@ export async function onRequestGet(context) {
   }
 }
 
+const COVERAGE = [[[-66.47,45.03],[-65.13,45.03],[-65.13,45.97],[-66.47,45.97],[-66.47,45.03]]]; // geo-fetch box, recomputed from authoritative areas Oct 2026
+
 async function aggregate(env, origin, context) {
   if (!env.REPLIERS_API_KEY) throw new Error("REPLIERS_API_KEY not set");
 

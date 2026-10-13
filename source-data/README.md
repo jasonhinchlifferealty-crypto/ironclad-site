@@ -1,0 +1,1 @@
+Official City of Saint John neighbourhood boundaries (15 features, Name+Sector), fetched Oct 2026 from the city's ArcGIS org. Source of truth for the 5 dissolved SJ display areas in public/data/areas.geojson; reuse for any future per-neighbourhood expansion.

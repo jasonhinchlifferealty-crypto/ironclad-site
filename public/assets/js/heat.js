@@ -97,25 +97,7 @@
     octx.putImageData(img, 0, 0);
     ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
     ctx.drawImage(off, 0, 0, size.x, size.y);
-    // clip to the service area: feathered mask from every area polygon — heat never paints beyond the patch
-    if (state.rings && state.rings.length) {
-      var mk = document.createElement("canvas"); mk.width = size.x; mk.height = size.y;
-      var mctx = mk.getContext("2d");
-      mctx.filter = "blur(14px)";
-      mctx.fillStyle = "#fff";
-      mctx.beginPath();
-      state.rings.forEach(function (ring) {
-        ring.forEach(function (pt, i) {
-          var p = map.latLngToContainerPoint([pt[1], pt[0]]);
-          if (i === 0) mctx.moveTo(p.x, p.y); else mctx.lineTo(p.x, p.y);
-        });
-        mctx.closePath();
-      });
-      mctx.fill();
-      ctx.globalCompositeOperation = "destination-in";
-      ctx.drawImage(mk, 0, 0);
-      ctx.globalCompositeOperation = "source-over";
-    }
+    // No polygon stencil: the confidence fade alone shapes the field, so edges follow listings, not drawn boxes.
     var lg = document.getElementById("heatLegend");
     if (lg) { lg.hidden = false; document.getElementById("heatLegendLo").textContent = M.legend[0]; document.getElementById("heatLegendHi").textContent = M.legend[1]; }
     window.__heatDbg = { pts: pts.length, cols: cols, rows: rows, confident: samples.length };
@@ -167,27 +149,21 @@
       dp.appendChild(dots.canvas);
       map.whenReady(function () { ensureData().then(renderDots); });
       map.on("click", function (e) {
-        if (map.getZoom() < 11 || !dots.hit || !dots.hit.length) return;
-        var p = e.containerPoint, best = null, bd = 12 * 12;
+        if (!dots.hit || !dots.hit.length) return;
+        var p = e.containerPoint, best = null, bd = 14 * 14;
         dots.hit.forEach(function (h) {
           var dx = h.x - p.x, dy = h.y - p.y, dd = dx * dx + dy * dy;
           if (dd < bd) { bd = dd; best = h; }
         });
         if (!best) return;
         var l = best.l;
+        if (window.IroncladListings && window.IroncladListings.showCard) {
+          window.IroncladListings.showCard(map, l, state.data);
+          return;
+        }
         var img = l.images && l.images.length ? '<img src="' + (C.listingImageBase || "https://cdn.repliers.io/") + l.images[0] + '?class=small" alt="" style="width:100%;height:110px;object-fit:cover;display:block">' : "";
         var addr = l.addressOk && l.street ? l.street + ", " + l.city : (l.type || "Home") + " in " + (l.city || "the Valley") + " — address on request";
-        var meta = [l.beds != null ? l.beds + " bed" : null, l.baths != null ? l.baths + " bath" : null, l.type].filter(Boolean).join(" · ");
-        L.popup({ maxWidth: 240, closeButton: true })
-          .setLatLng([l.lat, l.lng])
-          .setContent('<div style="font-family:inherit;min-width:200px">' + img +
-            '<div style="padding:10px 12px">' +
-            '<div style="font-weight:800;font-size:17px">$' + Math.round(l.price).toLocaleString("en-CA") + '</div>' +
-            '<div style="font-weight:600;font-size:13px;margin-top:2px">' + addr + '</div>' +
-            (meta ? '<div style="font-size:11px;color:#6b6867;margin-top:2px">' + meta + '</div>' : "") +
-            (l.mls ? '<div style="font-size:10px;color:#6b6867;margin-top:6px">MLS® ' + l.mls + '</div>' : "") +
-            '</div></div>')
-          .openOn(map);
+        L.popup({ maxWidth: 240 }).setLatLng([l.lat, l.lng]).setContent('<div style="min-width:200px">' + img + '<div style="padding:10px 12px"><div style="font-weight:800;font-size:17px">$' + Math.round(l.price).toLocaleString("en-CA") + '</div><div style="font-weight:600;font-size:13px;margin-top:2px">' + addr + '</div></div></div>').openOn(map);
       });
       map.createPane("heatPane");
       var pane = map.getPane("heatPane");
@@ -210,6 +186,7 @@
         b.classList.add("on");
         var m = b.getAttribute("data-hm");
         state.metric = m || null;
+        if (window.IroncladHeatMode) window.IroncladHeatMode(!!state.metric);
         if (!m) { clearField(); return; }
         ensureData().then(scheduleRender);
       });

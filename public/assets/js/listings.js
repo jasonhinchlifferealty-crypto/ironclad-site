@@ -141,6 +141,12 @@
   var layerGroup = null, mapCard = null;
   window.IroncladListings = {
     enabled: function () { return !!C.listingsEnabled; },
+    showCard: function (map, l, ctx) {
+      // Full listing card for ambient dots — same card, same buttons as area pins.
+      if (ctx && ctx.length) ovlCtx = ctx;
+      else if (ovlCtx.indexOf(l) === -1) ovlCtx = [l];
+      showMapCard(map, l);
+    },
     showForArea: function (map, areaId) {
       if (!C.listingsEnabled || !window.L) return;
       this.clear(map);
