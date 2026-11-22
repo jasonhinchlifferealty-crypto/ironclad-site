@@ -297,7 +297,7 @@
     var msg = $("#pulseMsg"), data = serialize(pulseForm); data.type = "subscriber"; data.source = "KV-Pulse-Signup"; data.page = location.href;
     var btn = pulseForm.querySelector("button"); btn.disabled = true;
     if (window.ironcladConvert) window.ironcladConvert();
-    post("/api/lead", data).then(function () { pulseForm.reset(); showMsg(msg, "Subscribed. First Pulse arrives on the 1st.", true); btn.disabled = false; })
+    post("/api/lead", data).then(function () { pulseForm.reset(); showMsg(msg, "Subscribed. The next edition will reach you when it is published.", true); btn.disabled = false; })
       .catch(function (err) { showMsg(msg, "That didn't go through: " + err.message, false); btn.disabled = false; });
   });
 })();

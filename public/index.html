@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ironclad Realty Group — The KV Market Pulse · Kennebecasis Valley & Saint John real estate</title>
+<title>Ironclad Realty Group — The KV Market Map · Kennebecasis Valley & Saint John real estate</title>
 <meta name="description" content="Neighbourhood-level home prices, days on market, and activity across Quispamsis, Rothesay, Hampton, Grand Bay-Westfield and Saint John. Pick your neighbourhood, get a street-level equity snapshot for your address. Call today. Answered today.">
 <link rel="canonical" href="https://ironcladrealty.ca/">
-<meta property="og:title" content="The KV Market Pulse — Ironclad Realty Group">
+<meta property="og:title" content="The KV Market Map — Ironclad Realty Group">
 <meta property="og:description" content="What homes are selling for, street by street, across the Kennebecasis Valley and Saint John. Updated monthly.">
 <meta property="og:image" content="https://ironcladrealty.ca/assets/img/og.png">
 <meta property="og:type" content="website">
@@ -16,7 +16,7 @@
 <link rel="preload" href="/assets/fonts/archivo-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/archivo-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/vendor/leaflet.css">
-<link rel="stylesheet" href="/assets/css/site.css?v=3.6">
+<link rel="stylesheet" href="/assets/css/site.css?v=3.7">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -41,7 +41,8 @@
       <img src="/assets/img/lockup-charcoal.png" alt="Ironclad Realty Group" width="1836" height="450">
     </a>
     <nav class="nav" id="nav" aria-label="Primary">
-      <a href="#pulse">The Pulse</a>
+      <a href="#pulse">The Map</a>
+      <a href="/pulse/">The Pulse</a>
       <a href="#sell">Sell</a>
       <a href="#buy">Buy</a><a href="/quiz/">The Test</a>
       <a href="#about">About</a>
@@ -57,12 +58,12 @@
 
 <div class="notice" id="sampleNotice"><strong>Sample figures.</strong> Live market data is temporarily unavailable — the map is showing placeholder numbers.</div>
 
-<!-- ============ THE PULSE ============ -->
+<!-- ============ THE MAP (section id stays "pulse") ============ -->
 <section class="pulse" id="pulse" aria-labelledby="pulse-title">
   <div class="pulse-grid">
     <div class="pulse-intro">
       <div class="pulse-meta">
-        <span class="label red">The KV Market Pulse</span>
+        <span class="label red">The KV Market Map</span>
         <span class="label muted"><span id="pulsePeriod">—</span></span>
       </div>
       <h1 class="display" id="pulse-title">Know your street before you list.</h1>
@@ -222,13 +223,13 @@
   </div>
 </section>
 
-<!-- ============ KV PULSE SIGNUP ============ -->
+<!-- ============ MARKET PULSE SIGNUP ============ -->
 <section class="section-tight on-red" aria-labelledby="pulse-signup-title">
   <div class="wrap signup">
     <div class="stack" style="--stack:12px">
-      <span class="label" style="color:rgba(255,255,255,.75)">Monthly email</span>
-      <h2 class="h2" id="pulse-signup-title">The KV Pulse, in your inbox on the first of the month.</h2>
-      <p style="max-width:34em">One email. Every neighbourhood's numbers, what moved, and what it means if you're thinking of selling this year. No listings spam.</p>
+      <span class="label" style="color:rgba(255,255,255,.75)">Monthly report</span>
+      <h2 class="h2" id="pulse-signup-title">The Ironclad Market Pulse, in your inbox each month.</h2>
+      <p style="max-width:34em">One email when each edition is published: where New Brunswick's market stands, how the published forecasts are scoring, and our outlook, with detail for Sussex to Saint John. No listings spam. <a href="/pulse/" style="text-decoration:underline">Read the latest edition</a>.</p>
     </div>
     <form id="pulseForm" novalidate>
       <div class="field">
@@ -238,7 +239,7 @@
       <button class="btn btn-on-red" type="submit">Send me the Pulse</button>
       <div class="hp" aria-hidden="true"><label>Leave this empty<input name="website" tabindex="-1" autocomplete="off"></label></div>
       <div class="form-msg span2" id="pulseMsg" role="status" style="grid-column:1/-1"></div>
-      <p class="consent" style="grid-column:1/-1;color:rgba(255,255,255,.75)">By subscribing you agree to receive the monthly KV Pulse from Ironclad Realty Group. Unsubscribe any time. <a href="/privacy.html" style="text-decoration:underline">Privacy</a>.</p>
+      <p class="consent" style="grid-column:1/-1;color:rgba(255,255,255,.75)"><span>By subscribing you agree to receive the monthly Ironclad Market Pulse from Ironclad Realty Group. Unsubscribe any time. <a href="/privacy.html" style="text-decoration:underline">Privacy</a>.</span></p>
     </form>
   </div>
 </section>
@@ -336,7 +337,7 @@
 <script src="/assets/js/config.js?v=3.6"></script>
 <script src="/assets/js/track.js?v=3.6"></script>
 <script src="/assets/js/heat.js?v=3.6"></script>
-<script src="/assets/js/pulse.js?v=3.6"></script>
+<script src="/assets/js/pulse.js?v=3.7"></script>
 <script src="/assets/js/listings.js?v=3.6"></script>
 </body>
 </html>

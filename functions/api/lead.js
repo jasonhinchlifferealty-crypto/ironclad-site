@@ -89,7 +89,7 @@ export async function onRequestPost(context) {
   } else {
     fubType = "Registration"; source = "KV-Pulse-Signup";
     tags.push("KV-Pulse-Subscriber");
-    message = "Subscribed to the monthly KV Pulse email.";
+    message = "Subscribed to the monthly Ironclad Market Pulse.";
   }
 
   const person = { emails: [{ value: email, type: "home" }], tags };
