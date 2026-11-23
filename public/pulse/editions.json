@@ -1,0 +1,22 @@
+{
+  "_note": "Read by the ironclad-pulse email worker once a day. Newest edition = highest n. An edition with \"email\": false is never emailed. See docs/pulse-editions.md.",
+  "editions": [
+    {
+      "n": 1,
+      "date": "2026-11-18",
+      "dataTo": "October 2026",
+      "headline": "Sales are absorbing the shock. Prices have stopped rising.",
+      "key": "−7.5%",
+      "keyLine": "New Brunswick home sales in 2026, on current tracking. Forecasts published a year ago called for a gain of 4% to 7%.",
+      "points": [
+        "7,790 homes sold in the first ten months, 6.8% fewer than in 2025.",
+        "The benchmark price was $339,400 in October: 1.2% above a year earlier and 3.6% below May.",
+        "None of the New Brunswick forecasts issued before April 2026 scored above a simple no-change assumption. Grades are provisional until year-end data is in.",
+        "Our outlook for the next 12 months: benchmark price −2% to +1%, with 2027 sales of 8,900 to 9,300 units."
+      ],
+      "url": "/pulse/2026-11/",
+      "pdf": "/pulse/2026-11/Ironclad-Market-Pulse-Edition-1.pdf",
+      "email": false
+    }
+  ]
+}

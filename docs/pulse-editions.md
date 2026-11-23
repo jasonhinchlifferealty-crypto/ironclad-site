@@ -23,6 +23,9 @@ public/assets/img/pulse/edition-1.png        1200x630 link-preview image (Facebo
    "All editions", update the "Next edition" line, add the edition to `hasPart` in the JSON-LD,
    and point `og:image` at the newest image.
 6. Add the new page to `public/sitemap.xml`.
+7. Add the edition to `public/pulse/editions.json` (see "Subscriber email" below). Do this LAST,
+   in the same upload as the page and PDF: the email worker announces whatever is newest in
+   that file.
 
 ## Rules carried over from the report
 
@@ -38,5 +41,36 @@ The form on the Pulse pages posts to `/api/lead` with type `subscriber`, source 
 The CRM tag is still `KV-Pulse-Subscriber`. The old names are kept on purpose so Follow Up Boss
 automations keep working.
 
-Not yet built: the email that tells subscribers a new edition is out. `workers/kv-pulse.js` still
-composes the old neighbourhood email and is parked.
+## Subscriber email (automatic)
+
+`workers/kv-pulse.js` is the source of the Cloudflare Worker named `ironclad-pulse`. It is not
+deployed from GitHub: after changing it, paste it into the Worker in the Cloudflare dashboard.
+
+Each morning (cron `0 12,13,14 * * *`, UTC) the worker reads `/pulse/editions.json` on the live
+site. If the edition with the highest `n` has not been emailed, it emails every subscriber once
+and sends Jason a report. Nothing else triggers a send, so publishing the edition is the approval.
+
+An entry in `editions.json`:
+
+```json
+{
+  "n": 2,
+  "date": "2026-12-18",
+  "dataTo": "November 2026",
+  "headline": "The cover headline, as on the summary page",
+  "key": "−8.1%",
+  "keyLine": "One sentence explaining the key number.",
+  "points": ["Three or four one-sentence findings.", "...", "..."],
+  "url": "/pulse/2026-12/",
+  "pdf": "/pulse/2026-12/Ironclad-Market-Pulse-Edition-2.pdf"
+}
+```
+
+- Add `"email": false` to an entry that must never be emailed (Edition 1 has it).
+- The worker will not send if the page or PDF does not load, or if a field is missing. It warns
+  Jason once and tries again the next morning.
+- Sends are recorded in the `LEADS` KV namespace under `pulse-email:sent:<n>`. To stop an edition
+  from being sent, add `"email": false` before the next morning check.
+- Status page and test send: the worker URL with `?key=` and the PULSE_KEY value.
+- At most 25 subscribers per run, three runs a morning (Cloudflare free plan: 50 outside requests
+  per run; Resend free tier: 100 emails a day).
